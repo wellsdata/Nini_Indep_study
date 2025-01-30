@@ -1,0 +1,503 @@
+---
+title: "Final Project Draft - Nini Mtchedlishvili"
+output: html_document
+date: "2024-11-24"
+---
+
+Professor, I am going to come to your office hour. I have Trump's data ready as well, I just want to know how to include that withing this R Markdown. 
+
+----------
+
+Currently, I have collected 198 articles from the Daily Wire, a prominent right-wing media organization in the United States. These articles are part of a larger research project aimed at analyzing how this outlet portrays two political figures: Kamala Harris and Donald Trump. The project focuses on articles published a few days before recent elections, as this period is likely to reveal editorial patterns and biases in politically charged reporting. My immediate goal is to expand the dataset to 99 articles about each candidate to ensure thorough comparative analysis. (Selecting 100 articles for Harris would cause the timeline change - that is why I only selected 99 articles from Oct. 14 to Nov. 4, just before the U.S. Presidential Elections.)
+
+The core of this research lies in examining the language and sentiment employed by the Daily Wire when referring to Kamala Harris versus Donald Trump. I aim to identify patterns in tone, word choice, and framing. Sentiment analysis will help determine whether the portrayal of Harris skews more negative or positive compared to Trump, while textual comparisons will highlight recurring themes and rhetorical strategies.
+
+Ultimately, this project seeks to analyze the frequency of biases in the Daily Wire's reporting towards both Kamala Harris and Donald Trump. If disparities in sentiment and language are evident, it could provide valuable insights into the media outlet's approach to covering candidates of opposing political affiliations. By shedding light on these patterns, the study will contribute to broader conversations about media bias and its influence on public opinion during critical electoral periods. 
+
+The decision to gather articles from the period between October 14 and November 4 reflects a critical phase in the lead-up to the U.S. presidential election. This timeframe includes the final weeks of the campaign, a period when media coverage intensifies, candidates make last-minute appeals to voters, and public discourse often reaches its peak. By focusing on this window, the analysis aims to capture the most concentrated and potentially impactful reporting, narratives, and biases leading up to one of the most consequential events in U.S. politics. This approach ensures the data reflects the media's framing and emphasis during the election's pivotal closing days.
+
+The link to the Daily Wire Kamala Harris dataset: https://github.com/ninimtch93/CompText_Jour/blob/main/FPD_Nini/DW_Kamala_Articles.xlsx
+
+The link to the Daily Wire Kamala Harris dataset:
+https://github.com/ninimtch93/CompText_Jour/blob/main/FPD_Nini/DW_Trump_Articles.xlsx
+
+
+```{r}
+
+# install.packages("tidyverse")
+# install.packages("rvest")
+# install.packages("janitor")
+#install.packages("wordcloud2")
+
+library(tidyverse)
+library(rvest)
+library(janitor)
+library(readxl)
+library(ggplot2)
+library(tidytext)
+library(wordcloud2)
+
+
+```
+
+```{r}
+
+# Define the function to scrape a Daily Wire article
+scrape_article <- function(url) {
+  # Read the HTML content of the page
+  page <- tryCatch(
+    read_html(url),
+    error = function(e) {
+      message(paste("Error reading:", url))
+      return(NULL)
+    }
+  )
+  
+  # Return NULL if page could not be loaded
+  if (is.null(page)) return(NULL)
+
+  # Extract the headline (assuming it's in an <h1> tag)
+  headline <- page %>%
+    html_element("h1") %>%
+    html_text(trim = TRUE)
+
+  # Extract the article text (all <p> elements)
+  article_text <- page %>%
+    html_elements("p") %>%
+    html_text(trim = TRUE) %>%
+    paste(collapse = "\n")
+  
+  # Extract the publication date (assuming it's in a <time> or meta tag)
+  date <- page %>%
+    html_element("time") %>%
+    html_attr("datetime") # Extract datetime attribute if available
+  
+  # If <time> is not used, try a common meta tag for publication date
+  if (is.na(date) || is.null(date)) {
+    date <- page %>%
+      html_element("meta[property='article:published_time']") %>%
+      html_attr("content") # Extract content attribute
+  }
+  
+  # If still no date, assign NA
+  if (is.na(date) || is.null(date)) {
+    date <- NA
+  }
+
+  # Combine headline, date, and article into one string for reference
+  full_text <- paste("Headline:\n", headline, "\n\nDate:\n", date, "\n\nArticle Text:\n", article_text)
+  
+  return(list(full_text = full_text, date = date))
+}
+
+# Read the Kamala Articles URLs from the Excel file
+urls <- read_excel("DW_Kamala_Articles.xlsx", sheet = 1)$URL
+
+# Specify the folder for saving articles
+kamala_output_folder <- "kamala_extracted_text"
+
+# Ensure the folder exists (create it if it doesn't)
+if (!dir.exists(kamala_output_folder)) {
+  dir.create(kamala_output_folder)
+}
+
+# Initialize a data frame to store article metadata
+article_metadata <- data.frame(
+  URL = character(),
+  Date = character(),
+  stringsAsFactors = FALSE
+)
+
+# Loop over URLs and save each article as a text file
+for (url in urls) {
+  article_data <- scrape_article(url)
+  
+  # Skip if article content is NULL
+  if (is.null(article_data)) next
+
+  # Extract the content and date
+  article_content <- article_data$full_text
+  article_date <- article_data$date
+  
+  # Create a filename from the URL (sanitize to avoid invalid characters)
+  filename <- paste0(gsub("[^a-zA-Z0-9]", "_", basename(url)), ".txt")
+  
+  # Save the article content to a text file in the specified folder
+  file_path <- file.path(kamala_output_folder, filename)
+  writeLines(article_content, con = file_path)
+  
+  # Append metadata to the data frame
+  article_metadata <- rbind(article_metadata, data.frame(URL = url, Date = article_date))
+  
+  message(paste("Saved:", file_path))
+}
+
+
+```
+
+
+```{r}
+library(rvest)
+
+# Define the URL
+url2 <- "https://www.dailywire.com/news/not-encouraging-nyt-warns-kamala-in-trouble-as-poll-finds-her-tied-with-trump?topStoryPosition=1"
+
+# Read the HTML content of the page
+page <- read_html(url2)
+
+# Extract the headline (usually in an <h1> tag)
+headline <- page %>%
+  html_element("h1") %>%
+  html_text(trim = TRUE)
+
+# Extract the article text (all <p> elements)
+article_text <- page %>%
+  html_elements("p") %>%
+  html_text(trim = TRUE)
+
+# Print the headline and article content
+cat("Headline:\n", headline, "\n\n")
+cat("Article Text:\n", paste(article_text, collapse = "\n"))
+
+```
+
+
+in R using this example build a function to take individual URLs from a data fram called urls and compile the extracted text into dataframe
+```{r}
+urls_list <- urls %>% 
+  as.data.frame() %>% 
+  rename(site = 1)
+
+
+```
+
+```{r}
+# Define the function to extract text and date from a limited set of URLs in urls_list
+extract_text_from_head_urls <- function(urls_list, n = 29) {
+  # Select the first 'n' URLs from the urls_list data frame
+  urls_to_process <- head(urls_list$site, n)
+  
+  # Initialize an empty data frame to store results
+  results_df <- data.frame(
+    url = character(),
+    headline = character(),
+    article_text = character(),
+    date = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  # Loop through each URL in the selected URLs
+  for (url in urls_to_process) {
+    # Read the HTML content of the page
+    page <- tryCatch({
+      read_html(url)
+    }, error = function(e) {
+      message("Error reading URL: ", url)
+      return(NULL)
+    })
+    
+    # Skip if page could not be read
+    if (is.null(page)) next
+    
+    # Extract the headline
+    headline <- page %>%
+      html_element("h1") %>%
+      html_text(trim = TRUE)
+    
+    # Extract the article text (all <p> elements)
+    article_text <- page %>%
+      html_elements("p") %>%
+      html_text(trim = TRUE) %>%
+      paste(collapse = "\n")
+    
+    # Extract the publication date
+    date <- page %>%
+      html_element("time") %>%
+      html_attr("datetime") # Extract datetime attribute if available
+    
+    # If <time> is not used, try a common meta tag for publication date
+    if (is.na(date) || is.null(date)) {
+      date <- page %>%
+        html_element("meta[property='article:published_time']") %>%
+        html_attr("content") # Extract content attribute
+    }
+    
+    # If still no date, assign NA
+    if (is.na(date) || is.null(date)) {
+      date <- NA
+    }
+    
+    # Append the results to the data frame
+    results_df <- results_df %>%
+      add_row(url = url, headline = headline, article_text = article_text, date = date)
+  }
+  
+  return(results_df)
+}
+
+# Example usage with your urls data frame
+# Assuming urls_list has a column 'site' containing the URLs
+# urls_list <- data.frame(site = c("https://example.com/article1", "https://example.com/article2"))
+
+compiled_text_df <- extract_text_from_head_urls(urls_list, n = 100)
+
+
+
+
+```
+
+Content Analysis Plan
+
+Collecting and Preparing the Data
+
+The first step is to complete the collection of articles about Kamala Harris and Donald Trump from the Daily Wire. Currently, I have 29 articles and aim to gather 100 articles for each candidate. Once the dataset is complete, I will clean and organize the text files saved in the extracted_text folder to ensure they are ready for analysis.
+
+
+
+Building and Using My Code Book
+
+Throughout our classes, I have managed to start collecting all of the codes that we went through. Because my project is going to be a comparative analysis of how a right-wing media organization portraied a Republican and a Democrat presidential candidates, using the codes in a right order will hold a crucial role in my research. 
+
+After gathering all of the data, I will analyze the bigrams to compare what two-word phrases were mostly used while talking about Donald Trump and Kamala Harris.
+
+For sentiment analysis, the codes will categorize text into:
+Positive: words like "success," "strong," or "leader."
+Negative: words like "failure," "weak," or "untrustworthy."
+Neutral or mixed: words like "controversial," "debate," or "discussion."
+
+I plan to apply consistent rules for identifying patterns in the articles and assign sentiment scores to compare how each candidate is portrayed.
+
+
+
+Analyzing the Data
+The analysis will include Text Analysis that will help me in identifying the most frequently used bigrams for each candidate and comparing the themes, and Sentiment Analysis that will allow me to measure the tone (positive, negative, or neutral) toward Kamala Harris and Donald Trump using sentiment lexicons.
+
+
+
+Visualization with ggplot2
+
+I plan to present at least to data visualization charts: Bigrams Bar Plot that will show the frequency of top 20 bigrams for each candidate, and
+Sentiment Comparison Plot that will visualize the compared sentiment distributions side-by-side for Harris and Trump.
+
+I might also do a Word Cloud: Summarizing frequently used words or phrases visually.
+
+
+
+How My Code Book Will Support the Project
+
+Standardizing Research:
+My code book will ensure consistency and transparency in coding the data. By defining clear rules for bigrams and sentiment categories, I will apply the same approach to all articles on both sides. This prevents subjective interpretations and makes it easier to compare language and tone across articles about Kamala Harris and Donald Trump.
+
+Organizing Data:
+With a large dataset of up to 200 articles, my code book will save time by providing a structured guide for categorizing and analyzing text. Having clear codes for key themes and sentiment ensures the focus remains on relevant patterns, leading to richer and more meaningful results.
+
+Quality Control:
+My code book will provide clear definitions and examples for each code, ensuring that data is entered and analyzed consistently. This systematic approach will reduce errors and strengthen the reliability of the findings. This will make it easier to draw valid conclusions about potential biases in the Daily Wire’s reporting.
+
+
+
+
+
+Sample of Data and Descriptive Statistics
+
+
+Below you can see that the article word-count varies from 391 to 2665. Most of the articles' word-count is in-between 500-900.
+
+```{r}
+
+WordCount <- compiled_text_df %>%
+  select(article_text) %>% 
+  mutate(WordCount = str_count(article_text, "\\w+")) %>% 
+  arrange(desc(WordCount))
+  
+
+WordCount
+
+```
+
+Visualization of the word count
+
+```{r}
+ggplot(WordCount, aes(x = WordCount)) +
+  geom_histogram(binwidth = 50, fill = "blue", color = "black") +
+  labs(
+    title = "Distribution of Word Counts in Articles about Kamala Harris",
+    x = "Word Count",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+```
+
+Code for counting rows
+
+```{r}
+
+nrow(compiled_text_df)
+
+```
+
+Code for counting columns
+```{r}
+
+ncol(compiled_text_df)
+
+```
+
+
+```{r}
+
+# Create the histogram
+ggplot(compiled_text_df, aes(x = date)) +
+  geom_bar(binwidth = 7, fill = "blue", color = "black") + # Weekly bins
+  labs(
+    title = "Distribution of Articles about Kamala Harris Over Time",
+    caption = "Graphics by Nini Mtchedlishvili",
+    x = "Date",
+    y = "Number of Articles"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+
+# Load the Excel file with the headlines (and potentially file names)
+file_path <- "./DW_Kamala_Articles.xlsx"
+articles_df <- read_excel(file_path)
+
+# Specify the directory containing the text files
+dir_path <- "./kamala_extracted_text/"
+
+# Get a list of all .txt files in the directory
+txt_files <- list.files(path = dir_path, pattern = "\\.txt$", full.names = TRUE)
+
+# Create a data frame with file names and corresponding content
+text_df <- lapply(txt_files, function(file) {
+  data.frame(
+    file_name = basename(file),  # Extract file name
+    text = read_lines(file) |> paste(collapse = "\n")  # Combine all lines into a single text block
+  )
+}) |> 
+  bind_rows()  # Combine individual file data frames
+
+
+```
+
+```{r}
+
+# Add a sequential identifier to both the Excel data frame and the text data frame
+articles_df <- articles_df %>%
+  mutate(row_id = row_number())
+
+text_df <- text_df %>%
+  mutate(row_id = row_number())
+
+# Merge the data frames using the row_id
+kamala_merged_df <- articles_df %>%
+  left_join(text_df, by = "row_id")
+
+# View the resulting merged data frame
+head(kamala_merged_df)
+
+
+```
+
+
+Bigram and GGplot
+
+
+```{r}
+
+kamala_bigrams_df <- kamala_merged_df %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%  
+  separate(bigram, into = c("word1", "word2"), sep = " ") %>%  
+  filter(
+    !word1 %in% stop_words$word,  
+    !word2 %in% stop_words$word,  
+    !word1 %in% c("it's", "i'm", "that’s", "they're", "don't", "2024", 
+                  "date", "latestnews", "latest", "news", "tip", "submit", 
+                  "missing", "its", "it", "is", "article", "text", "story", "submit", "date", "oct", "daily", "wire", "oct", "28", "dailywire", "https", "t.co","14", "2024", "headline"), 
+    !word2 %in% c("it's", "i'm", "that’s", "they're", "don't", "2024", 
+                  "date", "latestnews", "latest", "news", "tip", "submit", 
+                  "missing", "its", "it", "is", "article", "text", "story", "submit", "date", "oct", "daily", "wire", "oct", "28", "dailywire", "https", "t.co","14", "2024", "headline"), , 
+    !is.na(word1), 
+    !is.na(word2)  
+  ) %>%
+  unite(bigram, word1, word2, sep = " ") %>%  
+  count(bigram, sort = TRUE)  
+
+kamala_bigrams_df
+
+```
+
+
+```{r}
+
+top_30_bigrams <- kamala_bigrams_df %>%
+  head(30) 
+
+top_30_bigrams
+```
+
+```{r}
+
+ggplot(top_30_bigrams, aes(x = reorder(bigram, n), y = n)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    title = "Top 30 Two-Word Phrases in the Articles about Kamala Articles",
+    subtitle = "The Daily Wire Articles from Oct. 14 to Nov. 5",
+    caption = "Graphics by Nini Mtchedlishvili",
+    x = "Bigrams",
+    y = "Frequency"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip() 
+
+```
+
+
+
+Unigram and Word Cloud
+
+In addition to analyzing bigrams, I decided to include a word cloud. To do this, I created a unigram column. While the code runs successfully, some "junk" words still appear in the word cloud despite attempts to filter them out. Interestingly, in The Daily Wire articles about Kamala Harris, "Trump" emerged as the most frequently mentioned word. For research purposes, I deliberately filtered out "Kamala" and "Harris" from the unigrams, as their frequent mention in articles about her was expected. After removing these terms, the prominence of "Trump" suggests that The Daily Wire strategically framed their coverage around comparisons or references to him.
+```{r}
+
+
+kamala_unigrams_df <- kamala_merged_df %>%
+  unnest_tokens(word, text) %>%  
+  filter(
+    !word %in% stop_words$word,  
+    !word %in% c("its","it's", "i'm", "that’s", "they're", "don't", "2024", 
+                 "date", "latestnews", "latest", "news", "tip", "submit", 
+                 "missing", "its", "it", "is", "pic.twitter.com", "headline", "podcasts", "account", "she", "'", "s", "oct", "kamala", "harris", "text", "october", "story", "interview"),  
+    !is.na(word) 
+  ) %>%  
+  count(word, sort = TRUE)
+
+kamala_unigrams_df
+```
+
+
+
+```{r}
+top_30_unigrams <- kamala_unigrams_df %>%
+  arrange(desc(n)) %>%  
+  head(30) 
+
+
+top_30_unigrams
+```
+ 
+```{r}
+
+wordcloud2(data = top_30_unigrams, 
+           size = 1,  
+           shape = 'circle',  
+           color = 'random-dark', 
+           backgroundColor = "white")  
+
+```
+

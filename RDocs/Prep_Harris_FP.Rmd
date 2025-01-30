@@ -1,0 +1,209 @@
+---
+title: "Prep_Harris_FP"
+output: html_document
+date: "2024-12-01"
+---
+
+```{r}
+
+# install.packages("tidyverse")
+# install.packages("rvest")
+# install.packages("janitor")
+#install.packages("wordcloud2")
+
+library(tidyverse)
+library(rvest)
+library(janitor)
+library(readxl)
+library(ggplot2)
+library(tidytext)
+library(wordcloud2)
+
+
+```
+
+```{r include=FALSE}
+
+# Define the function to scrape a Daily Wire article
+scrape_article <- function(url) {
+  # Read the HTML content of the page
+  page <- tryCatch(
+    read_html(url),
+    error = function(e) {
+      message(paste("Error reading:", url))
+      return(NULL)
+    }
+  )
+  
+  # Return NULL if page could not be loaded
+  if (is.null(page)) return(NULL)
+
+  # Extract the headline (assuming it's in an <h1> tag)
+  headline <- page %>%
+    html_element("h1") %>%
+    html_text(trim = TRUE)
+
+  # Extract the article text (all <p> elements)
+  article_text <- page %>%
+    html_elements("p") %>%
+    html_text(trim = TRUE) %>%
+    paste(collapse = "\n")
+  
+  # Extract the publication date (assuming it's in a <time> or meta tag)
+  date <- page %>%
+    html_element("time") %>%
+    html_attr("datetime") # Extract datetime attribute if available
+  
+  # If <time> is not used, try a common meta tag for publication date
+  if (is.na(date) || is.null(date)) {
+    date <- page %>%
+      html_element("meta[property='article:published_time']") %>%
+      html_attr("content") # Extract content attribute
+  }
+  
+  # If still no date, assign NA
+  if (is.na(date) || is.null(date)) {
+    date <- NA
+  }
+
+  # Combine headline, date, and article into one string for reference
+  full_text <- paste("Headline:\n", headline, "\n\nDate:\n", date, "\n\nArticle Text:\n", article_text)
+  
+  return(list(full_text = full_text, date = date))
+}
+
+# Read the Kamala Articles URLs from the Excel file
+urls <- read_excel("DW_Kamala_Articles.xlsx", sheet = 1)$URL
+
+# Specify the folder for saving articles
+kamala_output_folder <- "kamala_extracted_text"
+
+# Ensure the folder exists (create it if it doesn't)
+if (!dir.exists(kamala_output_folder)) {
+  dir.create(kamala_output_folder)
+}
+
+# Initialize a data frame to store article metadata
+article_metadata <- data.frame(
+  URL = character(),
+  Date = character(),
+  stringsAsFactors = FALSE
+)
+
+# Loop over URLs and save each article as a text file
+for (url in urls) {
+  article_data <- scrape_article(url)
+  
+  # Skip if article content is NULL
+  if (is.null(article_data)) next
+
+  # Extract the content and date
+  article_content <- article_data$full_text
+  article_date <- article_data$date
+  
+  # Create a filename from the URL (sanitize to avoid invalid characters)
+  filename <- paste0(gsub("[^a-zA-Z0-9]", "_", basename(url)), ".txt")
+  
+  # Save the article content to a text file in the specified folder
+  file_path <- file.path(kamala_output_folder, filename)
+  writeLines(article_content, con = file_path)
+  
+  # Append metadata to the data frame
+  article_metadata <- rbind(article_metadata, data.frame(URL = url, Date = article_date))
+  
+  message(paste("Saved:", file_path))
+}
+
+
+```
+
+in R using this example build a function to take individual URLs from a data fram called urls and compile the extracted text into dataframe
+```{r}
+urls_list <- urls %>% 
+  as.data.frame() %>% 
+  rename(site = 1)
+
+
+```
+
+```{r}
+
+# Define the function to extract text and date from a limited set of URLs in urls_list
+extract_text_from_head_urls <- function(urls_list, n = 29) {
+  # Select the first 'n' URLs from the urls_list data frame
+  urls_to_process <- head(urls_list$site, n)
+  
+  # Initialize an empty data frame to store results
+  results_df <- data.frame(
+    url = character(),
+    headline = character(),
+    article_text = character(),
+    date = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  # Loop through each URL in the selected URLs
+  for (url in urls_to_process) {
+    # Read the HTML content of the page
+    page <- tryCatch({
+      read_html(url)
+    }, error = function(e) {
+      message("Error reading URL: ", url)
+      return(NULL)
+    })
+    
+    # Skip if page could not be read
+    if (is.null(page)) next
+    
+    # Extract the headline
+    headline <- page %>%
+      html_element("h1") %>%
+      html_text(trim = TRUE)
+    
+    # Extract the article text (all <p> elements)
+    article_text <- page %>%
+      html_elements("p") %>%
+      html_text(trim = TRUE) %>%
+      paste(collapse = "\n")
+    
+    # Extract the publication date
+    date <- page %>%
+      html_element("time") %>%
+      html_attr("datetime") # Extract datetime attribute if available
+    
+    # If <time> is not used, try a common meta tag for publication date
+    if (is.na(date) || is.null(date)) {
+      date <- page %>%
+        html_element("meta[property='article:published_time']") %>%
+        html_attr("content") # Extract content attribute
+    }
+    
+    # If still no date, assign NA
+    if (is.na(date) || is.null(date)) {
+      date <- NA
+    }
+    
+    # Append the results to the data frame
+    results_df <- results_df %>%
+      add_row(url = url, headline = headline, article_text = article_text, date = date)
+  }
+  
+  return(results_df)
+}
+
+# Example usage with your urls data frame
+# Assuming urls_list has a column 'site' containing the URLs
+# urls_list <- data.frame(site = c("https://example.com/article1", "https://example.com/article2"))
+
+compiled_text_df <- extract_text_from_head_urls(urls_list, n = 100)
+
+compiled_text_df <- compiled_text_df %>% 
+  mutate(date1=mdy(date)) %>% 
+  mutate(article_text=str_squish(article_text))
+
+# View the compiled results
+#print(compiled_text_df) #rsw comment ; - do not do this! It creates a total mess for your rendered web page, spitting out all of the articles.
+
+write.csv(compiled_text_df, "harris_dw.csv")
+
+```
