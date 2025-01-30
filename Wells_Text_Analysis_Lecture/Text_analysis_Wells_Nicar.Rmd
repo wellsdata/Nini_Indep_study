@@ -282,7 +282,7 @@ combined_index <- combined |>
   mutate(shared_article = n() > 1) |>
   ungroup()
 
-write.csv(combined_index, "combined_index.csv")
+#write.csv(combined_index, "combined_index.csv")
 
 ```
 
