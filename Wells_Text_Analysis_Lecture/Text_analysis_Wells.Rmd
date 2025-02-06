@@ -1,7 +1,7 @@
 ---
 title: "Nini Text Analysis"
 author: "Rob Wells"
-date: "2024-11-15"
+date: "2025-02-05"
 output: html_document
 ---
 
@@ -78,6 +78,7 @@ anti <- files |>
 
 ```
 
+**don't need to run this skip to line 163**
 ### Text compiler
 
 ```{r include=FALSE, echo=FALSE}
@@ -472,7 +473,7 @@ In how many different articles it appears (articles)
 if (!require(udpipe)) install.packages("udpipe")
 if (!require(dplyr)) install.packages("dplyr")
 library(udpipe)
-library(dplyr)
+library(tidyverse)
 ```
 
 ```{r}
