@@ -1,0 +1,43 @@
+---
+title: "Custom Sentiment"
+author: "Wells"
+date: "2025-02-11"
+output: html_document
+---
+
+```{r include=FALSE}
+
+# install.packages("tidyverse")
+# install.packages("rvest")
+# install.packages("janitor")
+install.packages("wordcloud2")
+#install.packages("tm")
+
+library(tidyverse)
+library(rvest)
+library(janitor)
+library(tidytext)
+library(rio)
+library(textdata)
+```
+
+
+
+```{r}
+afinn_sentiments <- get_sentiments("afinn")
+```
+
+```{r}
+#your custom word list
+words_list <- read.csv("your_words.csv", stringsAsFactors = FALSE)
+
+
+```
+
+
+```{r}
+custom <- afinn_sentiments %>% 
+  filter(word %in% words_list$word)
+
+```
+
