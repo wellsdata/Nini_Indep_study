@@ -332,6 +332,7 @@ afinn <- get_sentiments("afinn")
 
 #tokenize the dataframe, grouping by article number
 trump_sentiment <- trump_articles_df |> 
+  filter(!is.na(sentence)) |> #needed to filter na value
   select(sentence, index) |> 
   mutate(text = str_squish(sentence)) |> 
   mutate(text = tolower(text)) |>  
