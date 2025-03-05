@@ -320,7 +320,7 @@ ggplot(top_20_trump_bigrams, aes(x = reorder(bigram, n), y = n, fill=n)) +
   theme(legend.position = "none") +
   coord_flip() +  
   labs(title = "Top Two-Word phrases about Donald Trump on Daily Wire coverage",
-       caption = "n=94 articles, 2024. Graphic by Rob Wells. 1-23-2025",
+       caption = "n=94 articles, 2024. Graphic by Nini Mtchedlishvili. 1-23-2025",
        x = "Phrase",
        y = "Count of terms")
 ```
@@ -597,14 +597,14 @@ udmodel <- udpipe_load_model(udmodel$file_model)
 ```{r}
 # Process the text and extract adjectives
 # This will create a data frame with POS tags
-annotated_text <- udpipe_annotate(udmodel, x = harris_articles_df$sentence, doc_id = harris_articles_df$filename)
-annotated_df <- as.data.frame(annotated_text)
+annotated_text_kh <- udpipe_annotate(udmodel, x = harris_articles_df$sentence, doc_id = harris_articles_df$filename)
+annotated_df_kh <- as.data.frame(annotated_text_kh)
 ```
 
 
 ```{r}
 # Filter for adjectives (upos = "ADJ") and count frequencies
-adjective_counts <- annotated_df %>%
+adjective_counts_kh <- annotated_df_kh %>%
   filter(upos == "ADJ") %>%
   group_by(token) %>%
   summarise(
@@ -614,9 +614,9 @@ adjective_counts <- annotated_df %>%
   arrange(desc(frequency))
 
 # View the top 20 most frequent adjectives
-head(adjective_counts, 20)
+head(adjective_counts_kh, 20)
 
-datatable(adjective_counts,
+datatable(adjective_counts_kh,
           caption = "Top adjectives in Harris DW coverage",
           options = list(pageLength = 50)) 
 # Optional: Save results to CSV
@@ -625,7 +625,7 @@ datatable(adjective_counts,
 
 ```{r}
 # If you want to see adjectives by article
-adjectives_by_article <- annotated_df %>%
+adjectives_by_article_kh <- annotated_df_kh %>%
   filter(upos == "ADJ") %>%
   group_by(doc_id, token) %>%
   summarise(
@@ -655,10 +655,10 @@ The output will show combinations like "big house", "red car", "important issue"
 
 
 ```{r}
-adj_noun_pairs <- annotated_df %>%
+adj_noun_pairs_kh <- annotated_df_kh %>%
   # Join the dataframe with itself to connect adjectives to their head words
   inner_join(
-    annotated_df %>% select(doc_id, sentence_id, token, token_id, upos),
+    annotated_df_kh %>% select(doc_id, sentence_id, token, token_id, upos),
     by = c("doc_id", "sentence_id", "head_token_id" = "token_id")
   ) %>%
   # Filter for adjectives modifying nouns
@@ -676,7 +676,7 @@ adj_noun_pairs <- annotated_df %>%
   )
 
 # Count frequencies of adjective-noun pairs
-adj_noun_counts <- adj_noun_pairs %>%
+adj_noun_counts_kh <- adj_noun_pairs_kh %>%
   group_by(adjective, noun) %>%
   summarise(
     frequency = n(),
@@ -684,7 +684,7 @@ adj_noun_counts <- adj_noun_pairs %>%
   ) %>%
   arrange(desc(frequency))
 
-datatable(adj_noun_counts,
+datatable(adj_noun_counts_kh,
           caption = "Top adjectives-noun pairs in Harris DW coverage",
           options = list(pageLength = 50)) 
 
@@ -696,16 +696,122 @@ datatable(adj_noun_counts,
 
 
 # Optional: Save results to CSV
-write.csv(adj_noun_counts, "adjective_noun_pairs.csv", row.names = FALSE)
+write.csv(adj_noun_counts_kh, "adjective_noun_pairs_kh.csv", row.names = FALSE)
 
 # If you want to see pairs by article
-pairs_by_article <- adj_noun_pairs %>%
+pairs_by_article_kh <- adj_noun_pairs_kh %>%
   group_by(article_id, adjective, noun) %>%
   summarise(
     frequency = n()
   ) %>%
   arrange(article_id, desc(frequency))
 ```
+
+
+
+
+Analyzing adjective in the Daily Wire articles about Donald Trump 
+
+```{r}
+
+# Process the text and extract adjectives
+# This will create a data frame with POS tags
+annotated_text_dt <- udpipe_annotate(udmodel, x = trump_articles_df$sentence, doc_id = trump_articles_df$filename)
+annotated_df_dt <- as.data.frame(annotated_text_dt)
+
+```
+
+```{r}
+
+# Filter for adjectives (upos = "ADJ") and count frequencies
+adjective_counts_dt <- annotated_df_dt %>%
+  filter(upos == "ADJ") %>%
+  group_by(token) %>%
+  summarise(
+    frequency = n(),
+    articles = n_distinct(doc_id)
+  ) %>%
+  arrange(desc(frequency))
+
+# View the top 20 most frequent adjectives
+head(adjective_counts_dt, 20)
+
+datatable(adjective_counts_dt,
+          caption = "Top adjectives in Harris DW coverage",
+          options = list(pageLength = 50)) 
+# Optional: Save results to CSV
+#write.csv(adjective_counts, "adjective_frequencies.csv", row.names = FALSE)
+
+
+
+```
+
+```{r}
+# If you want to see adjectives by article
+adjectives_by_article_dt <- annotated_df_dt %>%
+  filter(upos == "ADJ") %>%
+  group_by(doc_id, token) %>%
+  summarise(
+    frequency = n()
+  ) %>%
+  arrange(doc_id, desc(frequency))
+
+```
+
+```{r}
+
+adj_noun_pairs_dt <- annotated_df_dt %>%
+  # Join the dataframe with itself to connect adjectives to their head words
+  inner_join(
+    annotated_df_dt %>% select(doc_id, sentence_id, token, token_id, upos),
+    by = c("doc_id", "sentence_id", "head_token_id" = "token_id")
+  ) %>%
+  # Filter for adjectives modifying nouns
+  filter(
+    dep_rel == "amod" &    # amod = adjectival modifier
+    upos.x == "ADJ" &      # first token is adjective
+    upos.y == "NOUN"       # head word is noun
+  ) %>%
+  # Select and rename relevant columns
+  select(
+    article_id = doc_id,
+    sentence_id,
+    adjective = token.x,
+    noun = token.y
+  )
+
+# Count frequencies of adjective-noun pairs
+adj_noun_counts_dt <- adj_noun_pairs_dt %>%
+  group_by(adjective, noun) %>%
+  summarise(
+    frequency = n(),
+    articles = n_distinct(article_id)
+  ) %>%
+  arrange(desc(frequency))
+
+datatable(adj_noun_counts_dt,
+          caption = "Top adjectives-noun pairs in Harris DW coverage",
+          options = list(pageLength = 50)) 
+
+
+```
+
+```{r}
+
+# Optional: Save results to CSV
+write.csv(adj_noun_counts_dt, "adjective_noun_pairs_dt.csv", row.names = FALSE)
+
+# If you want to see pairs by article
+pairs_by_article_dt <- adj_noun_pairs_dt %>%
+  group_by(article_id, adjective, noun) %>%
+  summarise(
+    frequency = n()
+  ) %>%
+  arrange(article_id, desc(frequency))
+
+
+```
+
 
 
 # ---------------------------
@@ -952,6 +1058,8 @@ ggplot(trump_sentiment_analysis, aes(x = index, y = sentiment, fill = sentiment_
        x = "Articles",
        y = "Sentiment Score") 
 ```
+
+
 
 ## Combine Harris, Trump articles
 
