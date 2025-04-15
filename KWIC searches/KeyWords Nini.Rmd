@@ -17,7 +17,7 @@ library(tidyverse)
 
 ```{r}
 
-kh_articles <- read.csv("kharris_extracted_text_jan2025.csv")
+kh_articles <- read.csv("../kharris_extracted_text_jan2025.csv")
 
 kh_articles <- kh_articles %>%
   mutate(filename = paste0(filename, "_", row_number()))
@@ -43,24 +43,9 @@ kh_tokens <- tokens(kh_corpus)
 kh_quanteda_test <- kwic(kh_tokens, pattern = "kamala", valuetype = "regex") %>% 
   as.data.frame()
 
-kh_quanteda_test2 <- kwic(kh_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")), window = 50, valuetype = "regex") %>% as.data.frame() 
+kh_kwic_results <- kwic(kh_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "\\btrans\\b")), window = 50, valuetype = "regex") %>% as.data.frame() 
 
 #write.csv(quanteda_test, "quanteda_test.csv")
-
-```
-
-
-```{r}
-
-#I know it is the same as the one above, just wanted try differently
-
-kh_kwic_results <- kwic(
-  kh_tokens,
-  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")),
-  window = 50, valuetype = "regex"
-) %>% 
-  as.data.frame() 
-
 
 ```
 
@@ -91,34 +76,96 @@ kh_kwic_with_metadata <- kh_kwic_results %>%
 
 ```
 
-The only thing I did not understand how to do was how to apply these housecleaning codes to this case
-
-
 # Housecleaning
 
+Example from Marilyn
+clean_df <- articles_df %>%
+  mutate(text = str_squish(sentence)) %>% #gets rid of leading and trailing spaces + double spaces
+  mutate(text = tolower(text)) %>%
+  mutate(text = str_replace(text, "startofarticle", "")) %>%
+  mutate(text = str_replace_all(text, "__", "")) %>%
+  mutate(text = gsub("issn:\\s+\\S+", "", text)) %>%
+  mutate(text = gsub("http[^ ]*", "http", text)) %>%
+  mutate(text = str_replace_all(text, c(
+    "copyright" = "",
+    "database: proquest central" = "",
+    "language of publication: english" = "",
+    "document url:\\s+\\S+" = "",
+    "proquest document id:\\s+\\S+" = "",
+    "publication subject:\\s+\\S+" = "",
+    "publication date:\\s+\\S+" = "",
+    "publication-type:\\s+\\S+" = "",
+    "pages:\\s+\\S+" = "",
+    "publication info" = "",
+    "last updated:\\s+\\S+" = "",
+    "interest periodicals--united states" = "",
+    "all rights resesrved" = "",
+    "load-date" = "",
+    "all rights reserved" = "", 
+    "new york times" = "",
+    "language: english" = "",
+    "author:\\s+\\S+" = "",
+    "abstract:\\s+\\S+" = "",
+    "links:\\s+\\S+" = "",
+    "publication title:\\s+\\S+" = "",
+    "volume:\\s+\\S+" = "",
+    "issue:\\s+\\S+" = "",
+    "publication year:\\s+\\S+" = "",
+    "publisher: windy city media group" = "",
+    "place of publication: chicago, ill." = "",
+    "country of publication: united states, chicago, ill." = "",
+    "document type:\\s+\\S+" = "",
+    "database: genderwatch" = "",
+    "identifier / keyword: y; genderwatch" = "",
+    "source type: newspaper" = "",
+    "windy city times" = "",
+    "umcp.primo.exlibrisgroup.com\\s+\\S+" = "",
+    "usmai-umcp.primo.exlibrisgroup.com" = "",
+    "id doi" = "",
+    "Links: https://usmai-umcp.primo.exlibrisgroup.com/" = "",
+    "windy city media group" = "",
+    "city times; chicago, ill." = "",
+    "http" = "",
+    "document feature:\\s+\\S+" = "",
+    "feature photographs" = "",
+    "full text:" = "",
+    "city times" = "",
+    "subject:\\s+\\S+" = "",
+    "company / organization:\\s+\\S+" = "",
+    "location:\\s+\\S+" = "",
+    "illinois; united states--us; illinois" = "",
+    "business indexing term:" = "",
+    "ch icago, ill." = "",
+    "title" = "", 
+    "web site:\\s+\\S+" = ""
+  ))) 
+
+
+
+
+
+```{r}
+
+
 #cut useless returns
-kh_mobjunk <- c("")
+kh_mobjunk <- c("http", "mt", "rt", "@KamalaHarris")
 kh_kwic_with_metadata <- kh_kwic_with_metadata %>%
   filter(!keyword %in% kh_mobjunk)
+```
 
-
+```{r}
 #Eliminate duplication
 kh_kwic_with_metadata  <- kh_kwic_with_metadata  %>% 
-  distinct(docname, pre, keyword, post, newspaper_name, date, url) %>% 
-  rename('Beginning of Passage' = pre, 'End of Passage' = post, Newspaper = newspaper_name, Date = date) 
+  distinct(docname, pre, keyword, post, pattern) %>% 
+  rename('Beginning of Passage' = pre, 'End of Passage' = post) 
 
-kwic_with_metadata_csv <- kwic_with_metadata  %>%
-  add_column(Code = NA) %>% 
-  add_column(Comments = NA) %>% 
-  select(docname, Newspaper, Date, 'Beginning of Passage', keyword, 'End of Passage', Code, Comments)
-
-
+```
 
 Donald Trump
 
 ```{r}
 
-dt_articles <- read.csv("trump_extracted_text_jan2025.csv")
+dt_articles <- read.csv("../trump_extracted_text_jan2025.csv")
 
 dt_articles <- dt_articles %>%
   mutate(filename = paste0(filename, "_", row_number()))

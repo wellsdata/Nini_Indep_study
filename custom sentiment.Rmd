@@ -29,6 +29,8 @@ afinn_sentiments <- get_sentiments("afinn")
 
 ```{r}
 #your custom word list
+#https://docs.google.com/spreadsheets/d/1o2juJX52YkpE7RwFAYbOWClAITd8iGXJLeaPOjBqfQ0/edit?gid=1306396425#gid=1306396425
+
 words_list <- read.csv("your_words.csv", stringsAsFactors = FALSE)
 
 

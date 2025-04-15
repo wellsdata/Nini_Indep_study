@@ -12,6 +12,8 @@ date: "04-15-2025"
 #install.packages("rvest")
 library(rvest)
 library(tidyverse)
+library(jsonlite)
+library(httr)
 ```
 
 ```{r}
@@ -26,21 +28,10 @@ library(tidyverse)
 # 3. Create credentials
 # 4. Set up a Custom Search Engine at https://programmablesearchengine.google.com/
 
-install.packages("googleAuthR")
+#install.packages("googleAuthR")
 library(googleAuthR)
-# Set your API key and Search Engine ID
-#set_google_api_key("XXX")
-#set_google_custom_search_engine_id("XXX")
-
 ```
 
-```{r}
-# Install and load required packages
-# install.packages("httr")
-# install.packages("jsonlite")
-library(httr)
-library(jsonlite)
-```
 
 ```{r}
 # Function to search using Google Custom Search API with pagination
@@ -54,9 +45,9 @@ google_search_all <- function(api_key, search_engine_id) {
   )
   
   # The exact search query
-  full_query <- 'site:www.dailywire.com "kamala harris" after:2024-07-21 before:2024-11-05'
+  full_query <- 'site:www.dailywire.com "kamala harris" after:2024-07-21 before:2024-08-05'
   
-  # Google only allows up to 100 pages (1000 results)
+  # Google only allows up to 100 pages 
   for(start_index in seq(1, 300, 10)) {
     # Add delay to avoid hitting rate limits
     Sys.sleep(1)
@@ -97,7 +88,7 @@ google_search_all <- function(api_key, search_engine_id) {
 
 # Your credentials here
 api_key <- "XXXX"
-search_engine_id <- "XXXX"
+search_engine_id <- "XXX"
 # Get all results
 all_urls_df <- google_search_all(api_key, search_engine_id)
 
@@ -172,8 +163,8 @@ count_results_by_date <- function(api_key, search_engine_id, site, search_term, 
 }
 
 # Define your parameters
-api_key <- "XXXX"
-search_engine_id <- "XXXX"
+# api_key <- "XXXX"
+# search_engine_id <- "XXXX"
 site <- "www.dailywire.com"
 search_term <- "kamala harris"
 
@@ -197,7 +188,7 @@ date_ranges <- list(
 
 august_ranges <- list(
   c("2024-08-01", "2024-08-15"),
-  c("2024-08-16", "2024-08-32")
+  c("2024-08-16", "2024-08-31")
 )
 
 october_ranges <- list(
