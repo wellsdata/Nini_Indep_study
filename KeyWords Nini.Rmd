@@ -1,0 +1,204 @@
+---
+title: "KEY WORDS - Nini"
+output: html_document
+date: "2025-04-13"
+---
+
+Based on keyword-in-context (KWIC) data from The Daily Wire's coverage of Kamala Harris and Donald Trump, the analysis shows distinct narrative patterns shaped around a shared conservative editorial voice. The five most relevant terms—“kamala,” “trump,” “donald,” “immigration,” and “trans”—appear with notably different frequencies across the two datasets, offering insight into how each figure is framed within the same ideological context.
+The term “trump” is the most frequently mentioned across both datasets, appearing 1,229 times in Trump-centered articles and 385 times in Harris-focused pieces. Similarly, “donald” appears 226 times in Trump articles and 126 times in Harris articles. This high volume indicates that Trump is both the subject and the rhetorical center of his own coverage, often discussed by name, whereas in Harris-related articles, his name is invoked frequently—likely as a point of contrast or critique. “Kamala,” on the other hand, appears 382 times in Harris articles and 261 times in Trump articles. Her name’s frequent presence in Trump-focused texts suggests a strong oppositional framing, positioning Harris as a political foil, often within narratives that highlight ideological or cultural conflict.
+“Illustrating issue-specific focus, the term “immigration” appears 58 times in Harris articles and 31 times in Trump articles. Although The Daily Wire is a conservative outlet, its Harris-related content appears to foreground immigration as a topic—potentially to challenge her policy positions or portray them as extreme. Interestingly, the word “immigrant” does not appear as frequently, suggesting that the coverage may focus more on the broader policy discourse rather than personalizing it around individual immigrants.
+The term “trans” appears nine times in the Harris articles and four times in the Trump set. This indicates that Harris’s association with LGBTQ+ topics—particularly transgender rights—is more prominent, though still marginal in the overall corpus. Despite The Daily Wire's likely critical stance on gender identity issues, the presence of “trans” in both datasets reflects ongoing relevance of the topic within conservative media discourse.
+Overall, the coverage suggests that The Daily Wire frames Harris and Trump differently even within its unified editorial perspective. Trump’s mentions are largely self-referential and celebratory, while Harris is frequently discussed through the lens of cultural and policy opposition. Issue-related keywords such as “immigration” and “trans” appear more often in Harris-related content, suggesting that she is more often linked to polarizing social issues—perhaps as a way to frame her as ideologically extreme. In contrast, Trump’s coverage remains more identity-centered and affirming, reinforcing his centrality to the outlet’s political messaging.
+
+
+
+```{r}
+
+#install.packages("readtext")
+library(quanteda)
+library(readtext)
+library(tidyverse)
+
+
+```
+
+
+```{r}
+
+kh_articles <- read.csv("kharris_extracted_text_jan2025.csv")
+
+kh_articles <- kh_articles %>%
+  mutate(filename = paste0(filename, "_", row_number()))
+
+```
+
+
+```{r}
+
+# Create a corpus using the 'sentence' column as the text field
+kh_corpus <- corpus(kh_articles, text_field = "sentence", docid_field = "filename") # build a new corpus from the texts
+head(kh_corpus)
+
+```
+
+
+```{r}
+
+# Tokenize the corpus
+kh_tokens <- tokens(kh_corpus)
+
+# Perform KWIC (Key Word in Context) search on the tokens
+kh_quanteda_test <- kwic(kh_tokens, pattern = "kamala", valuetype = "regex") %>% 
+  as.data.frame()
+
+kh_quanteda_test2 <- kwic(kh_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")), window = 50, valuetype = "regex") %>% as.data.frame() 
+
+#write.csv(quanteda_test, "quanteda_test.csv")
+
+```
+
+
+```{r}
+
+#I know it is the same as the one above, just wanted try differently
+
+kh_kwic_results <- kwic(
+  kh_tokens,
+  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")),
+  window = 50, valuetype = "regex"
+) %>% 
+  as.data.frame() 
+
+write_csv(kh_kwic_results, "kh_kwic_results.csv")
+
+```
+
+
+
+```{r}
+
+kh_kwic_results <- kh_kwic_results |>
+  mutate(matchrow = docname)
+
+
+
+```
+
+```{r}
+#Strips out unique file name from article index 
+kh_kwic_results <- kh_kwic_results |>  
+    mutate(matchrow = str_extract(docname, "^[^_]+_[^_]+"))
+
+kh_metadata <- kh_articles
+
+# Join KWIC results with metadata 
+kh_kwic_with_metadata <- kh_kwic_results %>%
+  inner_join(kh_articles, by = c("docname" = "filename")) %>% 
+  distinct(docname, .keep_all = TRUE) %>% 
+  select(docname, from, to, pre, keyword, post, pattern)
+
+
+```
+
+The only thing I did not understand how to do was how to apply these housecleaning codes to this case
+
+
+# Housecleaning
+
+#cut useless returns
+kh_mobjunk <- c("")
+kh_kwic_with_metadata <- kh_kwic_with_metadata %>%
+  filter(!keyword %in% kh_mobjunk)
+
+
+#Eliminate duplication
+kh_kwic_with_metadata  <- kh_kwic_with_metadata  %>% 
+  distinct(docname, pre, keyword, post, newspaper_name, date, url) %>% 
+  rename('Beginning of Passage' = pre, 'End of Passage' = post, Newspaper = newspaper_name, Date = date) 
+
+kwic_with_metadata_csv <- kwic_with_metadata  %>%
+  add_column(Code = NA) %>% 
+  add_column(Comments = NA) %>% 
+  select(docname, Newspaper, Date, 'Beginning of Passage', keyword, 'End of Passage', Code, Comments)
+
+
+
+Donald Trump
+
+```{r}
+
+dt_articles <- read.csv("trump_extracted_text_jan2025.csv")
+
+dt_articles <- dt_articles %>%
+  mutate(filename = paste0(filename, "_", row_number()))
+
+```
+
+
+```{r}
+
+# Create a corpus using the 'sentence' column as the text field
+dt_corpus <- corpus(dt_articles, text_field = "sentence", docid_field = "filename") # build a new corpus from the texts
+head(dt_corpus)
+
+```
+
+
+```{r}
+
+# Tokenize the corpus
+dt_tokens <- tokens(dt_corpus)
+
+# Perform KWIC (Key Word in Context) search on the tokens
+dt_quanteda_test <- kwic(dt_tokens, pattern = "donald", valuetype = "regex") %>% 
+  as.data.frame()
+
+dt_quanteda_test2 <- kwic(dt_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")), window = 50, valuetype = "regex") %>% as.data.frame() 
+
+#write.csv(quanteda_test, "quanteda_test.csv")
+
+```
+
+
+```{r}
+
+#I know it is the same as the one above, just wanted try differently
+
+dt_kwic_results <- kwic(
+  dt_tokens,
+  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")),
+  window = 50, valuetype = "regex"
+) %>% 
+  as.data.frame() 
+
+write_csv(dt_kwic_results, "dt_kwic_results.csv")
+
+
+```
+
+
+
+```{r}
+
+dt_kwic_results <- dt_kwic_results |>
+  mutate(matchrow = docname)
+
+
+
+```
+
+```{r}
+#Strips out unique file name from article index 
+dt_kwic_results <- dt_kwic_results |>  
+    mutate(matchrow = str_extract(docname, "^[^_]+_[^_]+"))
+
+dt_metadata <- dt_articles
+
+# Join KWIC results with metadata 
+dt_kwic_with_metadata <- dt_kwic_results %>%
+  inner_join(dt_articles, by = c("docname" = "filename")) %>% 
+  distinct(docname, .keep_all = TRUE) %>% 
+  select(docname, from, to, pre, keyword, post, pattern)
+
+
+```
