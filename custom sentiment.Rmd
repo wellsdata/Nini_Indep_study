@@ -31,8 +31,74 @@ afinn_sentiments <- get_sentiments("afinn")
 #your custom word list
 #https://docs.google.com/spreadsheets/d/1o2juJX52YkpE7RwFAYbOWClAITd8iGXJLeaPOjBqfQ0/edit?gid=1306396425#gid=1306396425
 
-words_list <- read.csv("your_words.csv", stringsAsFactors = FALSE)
+words_list <- read.csv("my_words.csv", stringsAsFactors = FALSE)
 
+
+```
+
+```{r}
+
+kh_articles <- read_csv("kharris_extracted_text_jan2025.csv")
+
+
+dt_articles <- read_csv("trump_extracted_text_jan2025.csv")
+
+```
+
+```{r}
+#unnest tokens
+
+kh_tokens <- kh_articles %>%
+  unnest_tokens(word, sentence)
+
+# Trump tokens
+dt_tokens <- dt_articles %>%
+  unnest_tokens(word, sentence)
+
+
+```
+
+```{r}
+
+colnames(kh_tokens)
+colnames(afinn_sentiments)
+
+```
+
+
+```{r}
+test_join <- inner_join(kh_tokens, afinn_sentiments, by = "word")
+View(test_join)
+
+kh_tokens <- kh_articles %>%
+  unnest_tokens(word, sentence) %>%
+  mutate(word = tolower(word)) %>%
+  filter(!is.na(word))
+
+```
+
+```{r}
+#Join with AFINN sentiment score
+
+# Match Kamala tokens with AFINN
+kh_sentiment <- kh_tokens %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename) %>%
+  summarise(sentiment = sum(value))
+
+# Match Trump tokens with AFINN
+dt_sentiment <- trump_tokens %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename) %>%
+  summarise(sentiment = sum(value))
+
+
+```
+
+```{r}
+
+kh_articles_sentiment <- left_join(kh_articles, kh_sentiment, by = "filename")
+dt_articles_sentiment <- left_join(dt_articles, dt_sentiment, by = "filename")
 
 ```
 
@@ -43,3 +109,137 @@ custom <- afinn_sentiments %>%
 
 ```
 
+```{r}
+
+combined <- bind_rows(
+  kh_sentiment %>% mutate(candidate = "Kamala Harris"),
+ dt_sentiment %>% mutate(candidate = "Donald Trump")
+)
+
+ggplot(combined, aes(x = candidate, y = sentiment)) +
+  geom_boxplot() +
+  labs(title = "Sentiment Comparison", y = "AFINN Sentiment Score", x = "Candidate")
+
+
+```
+
+
+```{r}
+
+combined %>%
+  group_by(candidate) %>%
+  summarise(
+    mean_sentiment = mean(sentiment, na.rm = TRUE),
+    median_sentiment = median(sentiment, na.rm = TRUE),
+    sd_sentiment = sd(sentiment, na.rm = TRUE)
+  )
+
+```
+
+
+
+```{r}
+
+kh_articles_sentiment <- left_join(kh_articles, kh_sentiment, by = "filename")
+dt_articles_sentiment <- left_join(dt_articles, dt_sentiment, by = "filename")
+
+# Combine and prepare
+combined_by_date <- bind_rows(
+  kh_articles_sentiment %>% mutate(candidate = "Kamala Harris"),
+  dt_articles_sentiment %>% mutate(candidate = "Donald Trump")
+) %>%
+  group_by(date, candidate) %>%
+  summarise(mean_sentiment = mean(sentiment, na.rm = TRUE))
+
+# Plot
+ggplot(combined_by_date, aes(x = date, y = mean_sentiment, color = candidate)) +
+  geom_line() +
+  labs(title = "Sentiment Over Time", x = "Date", y = "Mean Sentiment")
+
+
+```
+
+
+```{r}
+
+top_pos <- combined %>% arrange(desc(sentiment)) %>% head(10)
+top_neg <- combined %>% arrange(sentiment) %>% head(10)
+
+top_pos
+top_neg
+
+
+```
+
+
+```{r}
+
+kh_tokens %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  count(word, value, sort = TRUE)
+
+```
+
+```{r}
+
+dt_tokens %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  count(word, value, sort = TRUE)
+
+```
+
+Custom words
+
+
+```{r}
+my_words <- read.csv("my_words.csv")
+head(my_words)
+
+```
+
+```{r}
+
+# Tokenize Kamala Harris articles
+kh_tokens_c <- kh_articles %>%
+  unnest_tokens(word, sentence) %>%
+  mutate(word = tolower(word)) %>%
+  filter(word %in% my_words$word)
+
+# Tokenize Trump articles
+dt_tokens_c <- dt_articles %>%
+  unnest_tokens(word, sentence) %>%
+  mutate(word = tolower(word)) %>%
+  filter(word %in% my_words$word)
+
+```
+
+
+```{r}
+
+library(tidytext)
+afinn_sentiments <- get_sentiments("afinn")
+
+# Kamala sentiment
+kh_sentiment_custom <- kh_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename) %>%
+  summarise(sentiment = sum(value))
+
+# Trump sentiment
+dt_sentiment_custom <- dt_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename) %>%
+  summarise(sentiment = sum(value))
+
+```
+
+
+```{r}
+
+kh_articles_custom_sent <- left_join(kh_articles, kh_sentiment_custom, by = "filename")
+dt_articles_custom_sent <- left_join(dt_articles, dt_sentiment_custom, by = "filename")
+
+```
+
+
+I think I ran the codes properly but it does not give me anything but empty tables
