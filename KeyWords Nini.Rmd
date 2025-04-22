@@ -5,10 +5,25 @@ date: "2025-04-13"
 ---
 
 Based on keyword-in-context (KWIC) data from The Daily Wire's coverage of Kamala Harris and Donald Trump, the analysis shows distinct narrative patterns shaped around a shared conservative editorial voice. The five most relevant terms—“kamala,” “trump,” “donald,” “immigration,” and “trans”—appear with notably different frequencies across the two datasets, offering insight into how each figure is framed within the same ideological context.
-The term “trump” is the most frequently mentioned across both datasets, appearing 1,229 times in Trump-centered articles and 385 times in Harris-focused pieces. Similarly, “donald” appears 226 times in Trump articles and 126 times in Harris articles. This high volume indicates that Trump is both the subject and the rhetorical center of his own coverage, often discussed by name, whereas in Harris-related articles, his name is invoked frequently—likely as a point of contrast or critique. “Kamala,” on the other hand, appears 382 times in Harris articles and 261 times in Trump articles. Her name’s frequent presence in Trump-focused texts suggests a strong oppositional framing, positioning Harris as a political foil, often within narratives that highlight ideological or cultural conflict.
-“Illustrating issue-specific focus, the term “immigration” appears 58 times in Harris articles and 31 times in Trump articles. Although The Daily Wire is a conservative outlet, its Harris-related content appears to foreground immigration as a topic—potentially to challenge her policy positions or portray them as extreme. Interestingly, the word “immigrant” does not appear as frequently, suggesting that the coverage may focus more on the broader policy discourse rather than personalizing it around individual immigrants.
+The term “trump” is the most frequently mentioned across both datasets, appearing 1,229 times in Trump-centered articles and 385 times in Harris-focused pieces. Similarly, “donald” appears 226 times in Trump articles and 126 times in Harris articles. This high volume indicates that Trump is both the subject and the rhetorical center of his own coverage, often discussed by name, whereas in Harris-related articles, his name is invoked frequently—likely as a point of contrast or critique. “Kamala,” on the other hand, appears 382 times in Harris articles and 261 times in Trump articles. Her name’s frequent presence in Trump-focused texts suggests a strong oppositional framing, positioning Harris as a political foil, often within narratives that highlight ideological or cultural conflict. 
+
+#rsw comment: An example here - after a sentence that mentions Harris, there is a quote from Trump.
+
+#rsw comment: significant that immigration is almost double in Harris articles
+“Illustrating issue-specific focus, the term “immigration” appears 58 times in Harris articles and 31 times in Trump articles. 
+
+Although The Daily Wire is a conservative outlet, its Harris-related content appears to foreground immigration as a topic—potentially to challenge her policy positions or portray them as extreme. Interestingly, the word “immigrant” does not appear as frequently, suggesting that the coverage may focus more on the broader policy discourse rather than personalizing it around individual immigrants.
 The term “trans” appears nine times in the Harris articles and four times in the Trump set. This indicates that Harris’s association with LGBTQ+ topics—particularly transgender rights—is more prominent, though still marginal in the overall corpus. Despite The Daily Wire's likely critical stance on gender identity issues, the presence of “trans” in both datasets reflects ongoing relevance of the topic within conservative media discourse.
-Overall, the coverage suggests that The Daily Wire frames Harris and Trump differently even within its unified editorial perspective. Trump’s mentions are largely self-referential and celebratory, while Harris is frequently discussed through the lens of cultural and policy opposition. Issue-related keywords such as “immigration” and “trans” appear more often in Harris-related content, suggesting that she is more often linked to polarizing social issues—perhaps as a way to frame her as ideologically extreme. In contrast, Trump’s coverage remains more identity-centered and affirming, reinforcing his centrality to the outlet’s political messaging.
+Overall, the coverage suggests that The Daily Wire frames Harris and Trump differently even within its unified editorial perspective. Trump’s mentions are largely self-referential and celebratory,
+
+#rsw comment: example of "self-referential and celebratory"
+
+
+while Harris is frequently discussed through the lens of cultural and policy opposition.
+#rsw comment: example of "cultural and policy opposition"
+
+
+Issue-related keywords such as “immigration” and “trans” appear more often in Harris-related content, suggesting that she is more often linked to polarizing social issues—perhaps as a way to frame her as ideologically extreme. In contrast, Trump’s coverage remains more identity-centered and affirming, reinforcing his centrality to the outlet’s political messaging.
 
 
 
@@ -41,7 +56,8 @@ head(kh_corpus)
 
 ```
 
-
+#rsw comment - fixes trans to \\btrans\\b
+#This regex uses word boundaries (\\b) before and after "trans" to ensure it only matches the standalone word "trans" and not when it appears as part of a longer word.
 ```{r}
 
 # Tokenize the corpus
@@ -51,7 +67,7 @@ kh_tokens <- tokens(kh_corpus)
 kh_quanteda_test <- kwic(kh_tokens, pattern = "kamala", valuetype = "regex") %>% 
   as.data.frame()
 
-kh_quanteda_test2 <- kwic(kh_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")), window = 50, valuetype = "regex") %>% as.data.frame() 
+kh_quanteda_test2 <- kwic(kh_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "\\btrans\\b")), window = 50, valuetype = "regex") %>% as.data.frame() 
 
 #write.csv(quanteda_test, "quanteda_test.csv")
 
@@ -64,7 +80,7 @@ kh_quanteda_test2 <- kwic(kh_tokens, phrase(c("kamala", "harris", "donald", "tru
 
 kh_kwic_results <- kwic(
   kh_tokens,
-  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")),
+  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "\\btrans\\b")),
   window = 50, valuetype = "regex"
 ) %>% 
   as.data.frame() 
@@ -153,7 +169,7 @@ dt_tokens <- tokens(dt_corpus)
 dt_quanteda_test <- kwic(dt_tokens, pattern = "donald", valuetype = "regex") %>% 
   as.data.frame()
 
-dt_quanteda_test2 <- kwic(dt_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")), window = 50, valuetype = "regex") %>% as.data.frame() 
+dt_quanteda_test2 <- kwic(dt_tokens, phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "\\btrans\\b")), window = 50, valuetype = "regex") %>% as.data.frame() 
 
 #write.csv(quanteda_test, "quanteda_test.csv")
 
@@ -166,7 +182,7 @@ dt_quanteda_test2 <- kwic(dt_tokens, phrase(c("kamala", "harris", "donald", "tru
 
 dt_kwic_results <- kwic(
   dt_tokens,
-  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "trans")),
+  phrase(c("kamala", "harris", "donald", "trump", "immigration", "immigrant", "black", "men", "\\btrans\\b")),
   window = 50, valuetype = "regex"
 ) %>% 
   as.data.frame() 
