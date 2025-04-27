@@ -5,6 +5,8 @@ date: "2025-02-11"
 output: html_document
 ---
 
+#rsw edited 4-22-2025
+
 ```{r include=FALSE}
 
 # install.packages("tidyverse")
@@ -31,15 +33,18 @@ afinn_sentiments <- get_sentiments("afinn")
 #your custom word list
 #https://docs.google.com/spreadsheets/d/1o2juJX52YkpE7RwFAYbOWClAITd8iGXJLeaPOjBqfQ0/edit?gid=1306396425#gid=1306396425
 
-words_list <- read.csv("my_words.csv", stringsAsFactors = FALSE)
+#words_list <- read.csv("my_words.csv", stringsAsFactors = FALSE)
 
+words_list <- read.csv("Inflammatory words - edited_inflammatory_words.csv", stringsAsFactors = FALSE) |> 
+  janitor::clean_names() |> 
+  mutate(word = tolower(word)) |> 
+  mutate(category = tolower(category))
 
 ```
 
 ```{r}
 
-kh_articles <- read_csv("kharris_extracted_text_jan2025.csv")
-
+kh_articles <- read_csv("kharris_extracted_text_jan2025.csv") |> 
 
 dt_articles <- read_csv("trump_extracted_text_jan2025.csv")
 
@@ -49,7 +54,8 @@ dt_articles <- read_csv("trump_extracted_text_jan2025.csv")
 #unnest tokens
 
 kh_tokens <- kh_articles %>%
-  unnest_tokens(word, sentence)
+  unnest_tokens(word, sentence) |> 
+  mutate(word = tolower(word))
 
 # Trump tokens
 dt_tokens <- dt_articles %>%
@@ -64,6 +70,29 @@ colnames(kh_tokens)
 colnames(afinn_sentiments)
 
 ```
+
+#join with custom dictionary
+```{r}
+# kh_tokens <- kh_tokens |> 
+#   mutate(word = tolower(word))
+# 
+# words_list <- words_list |> 
+#    mutate(word = tolower(Word))
+
+test <- kh_tokens |> 
+  inner_join(words_list, by=c("word"))
+
+```
+
+# Top inflammatory words
+```{r}
+
+test |> 
+  count(word) |> 
+  arrange(desc(n))
+
+```
+
 
 
 ```{r}

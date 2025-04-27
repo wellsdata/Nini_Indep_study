@@ -14,6 +14,8 @@ library(rvest)
 library(tidyverse)
 library(jsonlite)
 library(httr)
+#install.packages("googleAuthR")
+library(googleAuthR)
 ```
 
 ```{r}
@@ -28,8 +30,13 @@ library(httr)
 # 3. Create credentials
 # 4. Set up a Custom Search Engine at https://programmablesearchengine.google.com/
 
-#install.packages("googleAuthR")
-library(googleAuthR)
+#umd.edu- https://programmablesearchengine.google.com/controlpanel/overview?cx=44897a96926a84be3
+```
+
+```{r}
+# Your credentials here
+api_key <- "XXXX"
+search_engine_id <- "XXX"
 ```
 
 
@@ -86,9 +93,7 @@ google_search_all <- function(api_key, search_engine_id) {
   return(all_results)
 }
 
-# Your credentials here
-api_key <- "XXXX"
-search_engine_id <- "XXX"
+
 # Get all results
 all_urls_df <- google_search_all(api_key, search_engine_id)
 
@@ -99,7 +104,7 @@ sept_urls_df <- unique(all_urls_df)
 cat("\nTotal unique articles found:", nrow(all_urls_df), "\n")
 
 # Save to CSV
-write.csv(sept_urls_df, "sept_kamala_harris_all_articles.csv", row.names = FALSE)
+#write.csv(sept_urls_df, "sept_kamala_harris_all_articles.csv", row.names = FALSE)
 ```
 #determine search results per month
 
@@ -259,6 +264,11 @@ print(urls_df)
 # Save to CSV
 #write.csv(urls_df, "kamala_harris_articles.csv", row.names = FALSE)
 ```
+
+
+
+
+
 
 older version
 
