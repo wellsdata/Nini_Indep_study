@@ -1,0 +1,51 @@
+Word ,Category,Source
+Aggravate,bold_descriptor,Strunk
+Crazy,personal,NBCU
+Deranged,personal,NBCU
+Druggie,personal,NBCU
+Enormity,bold_descriptor,Strunk
+Enthuse,bold_descriptor,Strunk
+Erratic,personal,NBCU
+Extremist,personal,ChatGPT
+Fanatic,personal,ChatGPT
+Flood,Race,LatinoReporter
+Freak,personal,NBCU
+Hate,bold_descriptor,ChatGPT
+Idiot,personal,NBCU
+Illegal,Race,ChatGPT
+Junkie,personal,NBCU
+Lunatic,personal,ChatGPT
+Mad,personal,NBCU
+Manic,personal,NBCU
+Nuts,personal,NBCU
+Offputting,bold_descriptor,Strunk
+Psychopathic,personal,NBCU
+Radical,personal,ChatGPT
+Retarded,personal,NBCU
+Savage,Race,ChatGPT
+Schizo,personal,NBCU
+Stupid,personal,NBCU
+Surge,Race,LatinoReporter
+Terrorist,Race,ChatGPT
+Unhinged,personal,NBCU
+Wave,Race,LatinoReporter
+radical left,politics,AI
+far-left,politics,AI
+marxist,politics,AI
+invasion,Race,AI
+bidenflation,politics,ChatGPT
+deep state,politics,ChatGPT
+woke,politics,ChatGPT
+identity politics,politics,ChatGPT
+american values,politics,chatGPT
+founding principles,politics,chatGPT
+illegal aliens,politics,chatGPT
+Border crisis,politics,chatGPT
+Indoctrination,politics,chatGPT
+trans agenda,politics,chatGPT
+anarchists,politics,chatGPT
+mainstream media,media,chatGPT
+fake news,media,chatGPT
+media bias,media,chatGPT
+propaganda,media,chatGPT
+censorship,media,chatGPT

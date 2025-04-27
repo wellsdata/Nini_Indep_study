@@ -5,7 +5,17 @@ date: "2025-02-11"
 output: html_document
 ---
 
-#rsw edited 4-22-2025
+The sentiment comparison between the Trump and Harris article datasets reveals consistent patterns of negativity, but significant differences in how that negativity is constructed. Based on the full AFINN sentiment analysis, the majority of articles in both datasets are strongly negative. Trump articles show a wide range of negative full sentiment scores, often with high levels of disapproval/criticism/hostility. Similarly, Harris articles predominantly reflect negative sentiment, with many articles scoring below -40 in full sentiment.
+
+When focusing on the custom troubled word list, however, a divergence between the two datasets becomes evident. In the Trump dataset, troubled words were relatively rare: over 80% of articles registered no custom sentiment because the troubled words were either absent or minimally used. When troubled words appeared in Trump articles, they included terms such as crazy, hate, idiot, illegal, lunatic, mad, nuts, propaganda, and stupid. However, their presence did not systematically intensify the sentiment score. The influence of these words was often isolated, appearing (not regurarly) across articles without significantly shifting the overall emotional tone.
+
+In contrast, Harris articles showed a stronger engagement with the troubled word list. Although not every Harris article contained these words, the occurrence was substantially more frequent than in the Trump dataset. Troubled words identified in Harris articles included crazy, hate, idiot, illegal, mad, propaganda, and stupid. Notably, while the two datasets shared many troubled words, Trump articles uniquely featured lunatic and nuts, which were absent in Harris coverage. In the Harris corpus, certain words — especially illegal — appeared repeatedly and with greater density within single articles, contributing significantly to the custom negative sentiment scores, sometimes reaching values as low as -39.
+
+The full_words columns in both datasets indicate that Trump articles drew negativity from a broader variety of words with smaller emotional loads, reflecting a generalized critique across multiple themes. Harris articles, however, were more narrowly focused: negativity often coalesced around a small set of repeated, ideologically charged terms. This concentrated use of emotionally loaded language suggests a strategic framing that emphasized threat narratives, particularly around immigration and legality.
+
+This asymmetry in the use of troubled words also reflects underlying differences in how each political figure is positioned within partisan narratives. The negative framing of Trump appears to emerge from a more generalized accumulation of dissatisfaction — drawing on a broad set of emotional triggers like frustration, anger, and distrust — but without a systematic reliance on a defined set of emotionally terms. This suggests that attacks on Trump may have been less structured around a central thematic narrative and instead distributed across diverse criticisms of competence, character, and policy. The relatively scattered appearance of troubled words such as lunatic and nuts in the Trump corpus, did not dominate the sentiment analysis.
+
+On the other hand, the Harris articles reveal a sharper strategic focus in their negative framing. Troubled words in the Harris dataset — particularly illegal, stupid, and crazy — were not only more frequent but often clustered within the same article, intensifying the emotional resonance of the narrative. The heavy reliance on the term illegal, for instance, anchors much of the sentiment around themes of lawlessness, border insecurity, and governance failure. This pattern suggests a deliberate rhetorical strategy, where negativity is consolidated around specific fears and anxieties related to immigration and societal stability. Consequently, the sentiment toward Harris appears more ideologically driven and emotionally concentrated, pointing to a more targeted form of political communication within the sampled media environment.
 
 ```{r include=FALSE}
 
@@ -35,7 +45,7 @@ afinn_sentiments <- get_sentiments("afinn")
 
 #words_list <- read.csv("my_words.csv", stringsAsFactors = FALSE)
 
-words_list <- read.csv("Inflammatory words - edited_inflammatory_words.csv", stringsAsFactors = FALSE) |> 
+words_list <- read.csv("words_list.csv", stringsAsFactors = FALSE) |> 
   janitor::clean_names() |> 
   mutate(word = tolower(word)) |> 
   mutate(category = tolower(category))
@@ -44,231 +54,194 @@ words_list <- read.csv("Inflammatory words - edited_inflammatory_words.csv", str
 
 ```{r}
 
-kh_articles <- read_csv("kharris_extracted_text_jan2025.csv") |> 
+kh_articles <- read_csv("kharris_extracted_text_jan2025.csv") 
 
 dt_articles <- read_csv("trump_extracted_text_jan2025.csv")
 
 ```
 
-```{r}
-#unnest tokens
-
-kh_tokens <- kh_articles %>%
-  unnest_tokens(word, sentence) |> 
-  mutate(word = tolower(word))
-
-# Trump tokens
-dt_tokens <- dt_articles %>%
-  unnest_tokens(word, sentence)
-
-
-```
 
 ```{r}
 
-colnames(kh_tokens)
-colnames(afinn_sentiments)
-
-```
-
-#join with custom dictionary
-```{r}
-# kh_tokens <- kh_tokens |> 
-#   mutate(word = tolower(word))
-# 
-# words_list <- words_list |> 
-#    mutate(word = tolower(Word))
-
-test <- kh_tokens |> 
-  inner_join(words_list, by=c("word"))
-
-```
-
-# Top inflammatory words
-```{r}
-
-test |> 
-  count(word) |> 
-  arrange(desc(n))
-
-```
-
-
-
-```{r}
-test_join <- inner_join(kh_tokens, afinn_sentiments, by = "word")
-View(test_join)
-
-kh_tokens <- kh_articles %>%
-  unnest_tokens(word, sentence) %>%
-  mutate(word = tolower(word)) %>%
-  filter(!is.na(word))
-
-```
-
-```{r}
-#Join with AFINN sentiment score
-
-# Match Kamala tokens with AFINN
-kh_sentiment <- kh_tokens %>%
-  inner_join(afinn_sentiments, by = "word") %>%
-  group_by(filename) %>%
-  summarise(sentiment = sum(value))
-
-# Match Trump tokens with AFINN
-dt_sentiment <- trump_tokens %>%
-  inner_join(afinn_sentiments, by = "word") %>%
-  group_by(filename) %>%
-  summarise(sentiment = sum(value))
-
-
-```
-
-```{r}
-
-kh_articles_sentiment <- left_join(kh_articles, kh_sentiment, by = "filename")
-dt_articles_sentiment <- left_join(dt_articles, dt_sentiment, by = "filename")
-
-```
-
-
-```{r}
-custom <- afinn_sentiments %>% 
-  filter(word %in% words_list$word)
-
-```
-
-```{r}
-
-combined <- bind_rows(
-  kh_sentiment %>% mutate(candidate = "Kamala Harris"),
- dt_sentiment %>% mutate(candidate = "Donald Trump")
-)
-
-ggplot(combined, aes(x = candidate, y = sentiment)) +
-  geom_boxplot() +
-  labs(title = "Sentiment Comparison", y = "AFINN Sentiment Score", x = "Candidate")
-
-
-```
-
-
-```{r}
-
-combined %>%
-  group_by(candidate) %>%
-  summarise(
-    mean_sentiment = mean(sentiment, na.rm = TRUE),
-    median_sentiment = median(sentiment, na.rm = TRUE),
-    sd_sentiment = sd(sentiment, na.rm = TRUE)
-  )
-
-```
-
-
-
-```{r}
-
-kh_articles_sentiment <- left_join(kh_articles, kh_sentiment, by = "filename")
-dt_articles_sentiment <- left_join(dt_articles, dt_sentiment, by = "filename")
-
-# Combine and prepare
-combined_by_date <- bind_rows(
-  kh_articles_sentiment %>% mutate(candidate = "Kamala Harris"),
-  dt_articles_sentiment %>% mutate(candidate = "Donald Trump")
-) %>%
-  group_by(date, candidate) %>%
-  summarise(mean_sentiment = mean(sentiment, na.rm = TRUE))
-
-# Plot
-ggplot(combined_by_date, aes(x = date, y = mean_sentiment, color = candidate)) +
-  geom_line() +
-  labs(title = "Sentiment Over Time", x = "Date", y = "Mean Sentiment")
-
-
-```
-
-
-```{r}
-
-top_pos <- combined %>% arrange(desc(sentiment)) %>% head(10)
-top_neg <- combined %>% arrange(sentiment) %>% head(10)
-
-top_pos
-top_neg
-
-
-```
-
-
-```{r}
-
-kh_tokens %>%
-  inner_join(afinn_sentiments, by = "word") %>%
-  count(word, value, sort = TRUE)
-
-```
-
-```{r}
-
-dt_tokens %>%
-  inner_join(afinn_sentiments, by = "word") %>%
-  count(word, value, sort = TRUE)
-
-```
-
-Custom words
-
-
-```{r}
-my_words <- read.csv("my_words.csv")
-head(my_words)
-
-```
-
-```{r}
-
-# Tokenize Kamala Harris articles
+# Harris articles (kh_articles)
 kh_tokens_c <- kh_articles %>%
   unnest_tokens(word, sentence) %>%
   mutate(word = tolower(word)) %>%
-  filter(word %in% my_words$word)
+  filter(word %in% words_list$word)
 
-# Tokenize Trump articles
+# Trump articles (dt_articles)
 dt_tokens_c <- dt_articles %>%
   unnest_tokens(word, sentence) %>%
   mutate(word = tolower(word)) %>%
-  filter(word %in% my_words$word)
+  filter(word %in% words_list$word)
+
 
 ```
 
 
 ```{r}
 
-library(tidytext)
-afinn_sentiments <- get_sentiments("afinn")
+# Sentiment analysis: Kamala Harris
+kh_sentiment_words <- kh_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename, word) %>%
+  summarise(word_sentiment = sum(value), word_count = n()) %>%
+  ungroup()
 
-# Kamala sentiment
+# Sentiment analysis: Trump
+dt_sentiment_words <- dt_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename, word) %>%
+  summarise(word_sentiment = sum(value), word_count = n()) %>%
+  ungroup()
+
+
+```
+
+```{r}
+
+# Tokenize Harris full
+kh_tokens_full <- kh_articles %>%
+  unnest_tokens(word, sentence) %>%
+  mutate(word = tolower(word))
+
+# Tokenize Trump full
+dt_tokens_full <- dt_articles %>%
+  unnest_tokens(word, sentence) %>%
+  mutate(word = tolower(word))
+
+# Sentiment: Harris full
+kh_sentiment_full <- kh_tokens_full %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename) %>%
+  summarise(full_sentiment = sum(value))
+
+# Sentiment: Trump full
+dt_sentiment_full <- dt_tokens_full %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  group_by(filename) %>%
+  summarise(full_sentiment = sum(value))
+
+```
+
+
+
+```{r}
+
+# Sentiment: Harris troubled words
 kh_sentiment_custom <- kh_tokens_c %>%
   inner_join(afinn_sentiments, by = "word") %>%
   group_by(filename) %>%
-  summarise(sentiment = sum(value))
+  summarise(custom_sentiment = sum(value))
 
-# Trump sentiment
+# Sentiment: Trump troubled words
 dt_sentiment_custom <- dt_tokens_c %>%
   inner_join(afinn_sentiments, by = "word") %>%
   group_by(filename) %>%
-  summarise(sentiment = sum(value))
+  summarise(custom_sentiment = sum(value))
 
 ```
-
 
 ```{r}
 
-kh_articles_custom_sent <- left_join(kh_articles, kh_sentiment_custom, by = "filename")
-dt_articles_custom_sent <- left_join(dt_articles, dt_sentiment_custom, by = "filename")
+# Merge Harris sentiments
+kh_sentiment_comparison <- kh_sentiment_full %>%
+  left_join(kh_sentiment_custom, by = "filename")
+
+# Merge Trump sentiments
+dt_sentiment_comparison <- dt_sentiment_full %>%
+  left_join(dt_sentiment_custom, by = "filename")
+
+```
+
+```{r}
+
+# Full Harris: All words
+kh_words_full <- kh_tokens_full %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  select(filename, word, value)
+
+# Full Trump
+dt_words_full <- dt_tokens_full %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  select(filename, word, value)
+
+# Custom Harris: Troubled word list only
+kh_words_custom <- kh_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  select(filename, word, value)
+
+# Custom Trump
+dt_words_custom <- dt_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  select(filename, word, value)
+
+
+```
+
+```{r}
+
+# Harris full sentiment
+kh_sentiment_full <- kh_words_full %>%
+  group_by(filename) %>%
+  summarise(full_sentiment = sum(value))
+
+# Harris custom sentiment
+kh_sentiment_custom <- kh_words_custom %>%
+  group_by(filename) %>%
+  summarise(custom_sentiment = sum(value))
+
+# Trump full sentiment
+dt_sentiment_full <- dt_words_full %>%
+  group_by(filename) %>%
+  summarise(full_sentiment = sum(value))
+
+# Trump custom sentiment
+dt_sentiment_custom <- dt_words_custom %>%
+  group_by(filename) %>%
+  summarise(custom_sentiment = sum(value))
 
 ```
 
 
-I think I ran the codes properly but it does not give me anything but empty tables
+wanted to create a dataframe where sentiment scores as well as well words that caused full or custom sentiment scores would be visible
+
+```{r}
+
+# Merging Harris sentiments
+kh_sentiment_comparison <- kh_sentiment_full %>%
+  left_join(kh_sentiment_custom, by = "filename") %>%
+  left_join(
+    kh_words_full %>%
+      group_by(filename) %>%
+      summarise(full_words = paste(unique(word), collapse = ", ")),
+    by = "filename"
+  ) %>%
+  left_join(
+    kh_words_custom %>%
+      group_by(filename) %>%
+      summarise(custom_words = paste(unique(word), collapse = ", ")),
+    by = "filename"
+  )
+
+# Merging Trump sentiments
+dt_sentiment_comparison <- dt_sentiment_full %>%
+  left_join(dt_sentiment_custom, by = "filename") %>%
+  left_join(
+    dt_words_full %>%
+      group_by(filename) %>%
+      summarise(full_words = paste(unique(word), collapse = ", ")),
+    by = "filename"
+  ) %>%
+  left_join(
+    dt_words_custom %>%
+      group_by(filename) %>%
+      summarise(custom_words = paste(unique(word), collapse = ", ")),
+    by = "filename"
+  )
+
+write_csv(kh_sentiment_comparison, "kh_sentiment_comparison.csv")
+
+write_csv(dt_sentiment_comparison, "dt_sentiment_comparison.csv")
+
+```
