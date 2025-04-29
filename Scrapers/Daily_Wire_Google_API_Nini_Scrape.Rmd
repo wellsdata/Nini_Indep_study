@@ -39,7 +39,7 @@ library(lubridate)
 ```{r echo=FALSE}
 
 Sys.setenv(GOOGLE_SEARCH_API_KEY = "XXXXX")
-Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "XXXXXX")
+Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "XXXXX")
 
 
 ```
@@ -53,7 +53,7 @@ search_engine_id  <- Sys.getenv("GOOGLE_SEARCH_ENGINE_ID")
 
 ```
 
-
+# Extract articles by date
 ```{r}
 # Function to search using Google Custom Search API with pagination
 google_search_all <- function(api_key, search_engine_id) {
@@ -66,7 +66,8 @@ google_search_all <- function(api_key, search_engine_id) {
   )
   
   # The exact search query
-  full_query <- 'site:www.dailywire.com "kamala harris" after:2024-07-21 before:2024-08-05'
+  #Change the dates here
+  full_query <- 'site:www.dailywire.com "kamala harris" after:2024-08-01 before:2024-08-10'
   
   # Google only allows up to 100 pages 
   for(start_index in seq(1, 300, 10)) {
@@ -112,7 +113,7 @@ google_search_all <- function(api_key, search_engine_id) {
 all_urls_df <- google_search_all(api_key, search_engine_id)
 
 # Remove any duplicates
-sept_urls_df <- unique(all_urls_df)
+august_10_urls_df <- unique(all_urls_df)
 
 # Print total number of results
 cat("\nTotal unique articles found:", nrow(all_urls_df), "\n")
@@ -174,7 +175,7 @@ count_results_by_date <- function(api_key, search_engine_id, site, search_term, 
     }
     
     # One second pause to avoid hitting rate limits with API query
-    Sys.sleep(1)
+    Sys.sleep(1.5)
   }
   #Returns the completed data frame containing all date ranges and their corresponding result counts
   return(results_count)
@@ -202,10 +203,10 @@ date_ranges <- list(
 
 # If you want to see how results are distributed within a month
 
-august_ranges <- list(
-  c("2024-08-01", "2024-08-15"),
-  c("2024-08-16", "2024-08-31")
-)
+# august_ranges <- list(
+#   c("2024-08-01", "2024-08-15"),
+#   c("2024-08-16", "2024-08-31")
+# )
 
 # october_ranges <- list(
 #   c("2024-10-01", "2024-10-10"),
@@ -229,7 +230,8 @@ barplot(monthly_counts$result_count,
         main = "DailyWire Articles Mentioning 'Kamala Harris' by Month",
         xlab = "Month",
         ylab = "Number of Articles",
-        col = "steelblue")
+        col = "steelblue",
+        family = "sans")  # Using 'sans' as a default font family that should be available
 ```
 
 
@@ -290,7 +292,7 @@ scrape_article <- function(url) {
 # You will need to point to the location of your Daily Wire Articles spreadsheet.
 # urls <- read_excel("~/Code/CompText_Jour/data/Daily_Wire_Articles.xlsx", sheet = 1)$URL
 
-urls <- sept_urls_df$url
+urls <- august_10_urls_df$url
 # Create directory if it doesn't exist
 dir.create("extracted_articles", showWarnings = FALSE)
 
@@ -314,3 +316,20 @@ for (url in urls) {
 }
 
 ```
+
+#Create a final index
+
+```{r}
+#add the url_df here
+final_index <- rbind(august_10_urls_df, sept_urls_df) |> 
+  # Extract date pattern from snippet column
+  mutate(date_str = str_extract(snippet, "[A-Z][a-z]{2}\\s+\\d{1,2},\\s+\\d{4}")) %>%
+  # Convert extracted strings to Date objects
+  mutate(date = mdy(date_str)) %>%
+  # Remove the intermediate string column if you don't need it
+  select(-date_str)
+
+
+write.csv(final_index, "daily_wire_extracted_articles.csv")
+```
+
