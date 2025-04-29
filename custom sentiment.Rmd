@@ -22,7 +22,7 @@ On the other hand, the Harris articles reveal a sharper strategic focus in their
 # install.packages("tidyverse")
 # install.packages("rvest")
 # install.packages("janitor")
-install.packages("wordcloud2")
+#install.packages("wordcloud2")
 #install.packages("tm")
 
 library(tidyverse)
@@ -78,6 +78,7 @@ dt_tokens_c <- dt_articles %>%
 
 ```
 
+#rsw comment: briefly summarize what this code is supposed to achieve. In this case: "Sentiment score by word"
 
 ```{r}
 
@@ -97,6 +98,8 @@ dt_sentiment_words <- dt_tokens_c %>%
 
 
 ```
+
+#rsw comment: briefly summarize what this code is supposed to achieve. In this case: "Sentiment score by article"
 
 ```{r}
 
@@ -125,7 +128,7 @@ dt_sentiment_full <- dt_tokens_full %>%
 ```
 
 
-
+#rsw comment: briefly summarize what this code is supposed to achieve. In this case: "Sentiment score of custom words by article"
 ```{r}
 
 # Sentiment: Harris troubled words
@@ -169,7 +172,7 @@ dt_words_full <- dt_tokens_full %>%
 # Custom Harris: Troubled word list only
 kh_words_custom <- kh_tokens_c %>%
   inner_join(afinn_sentiments, by = "word") %>%
-  select(filename, word, value)
+  select(filename, word, value) 
 
 # Custom Trump
 dt_words_custom <- dt_tokens_c %>%
@@ -178,6 +181,20 @@ dt_words_custom <- dt_tokens_c %>%
 
 
 ```
+
+#rsw comment - higher up in this code, we should see a basic summary of the problem words:
+```{r}
+kh_tokens_c %>%
+  inner_join(afinn_sentiments, by = "word") %>%
+  select(filename, word, value) |> 
+  group_by(word) |> 
+  count() |> 
+  arrange(desc(n))
+
+```
+
+
+
 
 ```{r}
 
@@ -245,3 +262,31 @@ write_csv(kh_sentiment_comparison, "kh_sentiment_comparison.csv")
 write_csv(dt_sentiment_comparison, "dt_sentiment_comparison.csv")
 
 ```
+
+
+#Add a column to highlight when the custom score is higher than the regular sentiment score
+This shows about 13% of the articles have a worse summary score with the custom words
+
+```{r}
+
+# Merging Harris sentiments
+kh_sentiment_comparison <- kh_sentiment_full %>%
+  left_join(kh_sentiment_custom, by = "filename") %>%
+  left_join(
+    kh_words_full %>%
+      group_by(filename) %>%
+      summarise(full_words = paste(unique(word), collapse = ", ")),
+    by = "filename"
+  ) %>%
+  left_join(
+    kh_words_custom %>%
+      group_by(filename) %>%
+      summarise(custom_words = paste(unique(word), collapse = ", ")),
+    by = "filename"
+  ) |> 
+  mutate(compare = case_when(
+    custom_sentiment < full_sentiment ~ "custom_worse",
+    TRUE ~ "regular_worse" 
+  ))
+```
+
