@@ -1,11 +1,28 @@
 ---
 title: "Daily Wire Scraper"
-author: "Wells"
-date: "04-15-2025"
+author: "Rob Wells and his pal Claude.ai"
+date: "05-01-2025"
   output:
   html_document: default
   pdf_document: default
 ---
+
+This notebook runs a Google power search query on a specific news site and then scrapes the results into individual text files into a separate folder. It compiles an index of the results with headline, date and URL.
+
+It uses the Google Search API which is a rough way to extract article text from a website without the API access.
+
+There are important limitations:
+
+Google Search API limits results to 100 specific URLs at a time. 
+
+For researchers seeking to several hundred or several thousand results, you can get around that by determining the result distribution and then breaking up the searches into blocks of 100 and compiling the results.
+
+The first step is to use Google power search operators to find your material and validate the search results. We did this to get all Kamala Harris articles on the Daily Wire:
+
+site:www.dailywire.com "kamala harris" after:2024-08-01 before:2024-08-10
+
+Special thanks Nino Mtchedlisvili for her assistance on this project.
+
 
 ```{r}
 # Install and load required packages if not already installed
@@ -19,27 +36,23 @@ library(googleAuthR)
 library(lubridate)
 ```
 
-```{r}
-# Install and load required packages
-
 
 # Set up API credentials
+```{r}
 # You'll need to get these from Google Cloud Console
 # Visit: https://console.cloud.google.com/
 # 1. Create a project
 # 2. Enable Custom Search API
 # 3. Create credentials
 # 4. Set up a Custom Search Engine at https://programmablesearchengine.google.com/
-
-#umd.edu- https://programmablesearchengine.google.com/controlpanel/overview?cx=44897a96926a84be3
 ```
 
 # Important! DO NOT STORE YOUR API Key in GitHub!
 
 ```{r echo=FALSE}
 
-Sys.setenv(GOOGLE_SEARCH_API_KEY = "XXXXX")
-Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "XXXXX")
+Sys.setenv(GOOGLE_SEARCH_API_KEY = "XXX")
+Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "XXXX")
 
 
 ```
@@ -53,83 +66,13 @@ search_engine_id  <- Sys.getenv("GOOGLE_SEARCH_ENGINE_ID")
 
 ```
 
-# Extract articles by date
-```{r}
-# Function to search using Google Custom Search API with pagination
-google_search_all <- function(api_key, search_engine_id) {
-  base_url <- "https://www.googleapis.com/customsearch/v1"
-  all_results <- data.frame(
-    url = character(),
-    title = character(),
-    snippet = character(),
-    stringsAsFactors = FALSE
-  )
-  
-  # The exact search query
-  #Change the dates here
-  full_query <- 'site:www.dailywire.com "kamala harris" after:2024-08-01 before:2024-08-10'
-  
-  # Google only allows up to 100 pages 
-  for(start_index in seq(1, 300, 10)) {
-    # Add delay to avoid hitting rate limits
-    Sys.sleep(1)
-    
-    response <- GET(
-      base_url,
-      query = list(
-        key = api_key,
-        cx = search_engine_id,
-        q = full_query,
-        start = start_index
-      )
-    )
-    
-    results <- fromJSON(rawToChar(response$content))
-    
-    # Check if we have items in the response
-    if(!is.null(results$items)) {
-      page_df <- data.frame(
-        url = results$items$link,
-        title = results$items$title,
-        snippet = results$items$snippet,
-        stringsAsFactors = FALSE
-      )
-      
-      all_results <- rbind(all_results, page_df)
-      
-      # Print progress
-      cat("Retrieved results", start_index, "to", start_index + nrow(page_df) - 1, "\n")
-    } else {
-      # If no more results, break the loop
-      break
-    }
-  }
-  
-  return(all_results)
-}
-
-
-# Get all results
-all_urls_df <- google_search_all(api_key, search_engine_id)
-
-# Remove any duplicates
-august_10_urls_df <- unique(all_urls_df)
-
-# Print total number of results
-cat("\nTotal unique articles found:", nrow(all_urls_df), "\n")
-
-# Save to CSV
-#write.csv(sept_urls_df, "sept_kamala_harris_all_articles.csv", row.names = FALSE)
-```
-#determine search results per month
+# Count search results by date
 
 ```{r}
-
-
-# Function to count search results by date
+#New version specifies Google search in the US, use English and disables personalization of search results. All done for consistent results.
 count_results_by_date <- function(api_key, search_engine_id, site, search_term, date_ranges) {
- #creates empty dataframe that stores search result counts
-   results_count <- data.frame(
+  #creates empty dataframe that stores search result counts
+  results_count <- data.frame(
     date_range = character(),
     result_count = numeric(),
     stringsAsFactors = FALSE
@@ -146,7 +89,10 @@ count_results_by_date <- function(api_key, search_engine_id, site, search_term, 
         key = api_key,
         cx = search_engine_id,
         q = query,
-        num = 1  # requests only 1 result -only need the count, not actual results
+        num = 1,  # requests only 1 result -only need the count, not actual results
+        personalization = "false",  # Disable personalization
+        gl = "us",                  # Set country to US
+        hl = "en"                   # Set language to English
       )
     )
     
@@ -201,19 +147,6 @@ date_ranges <- list(
 #   c("2024-09-21", "2024-09-30")
 # )
 
-# If you want to see how results are distributed within a month
-
-# august_ranges <- list(
-#   c("2024-08-01", "2024-08-15"),
-#   c("2024-08-16", "2024-08-31")
-# )
-
-# october_ranges <- list(
-#   c("2024-10-01", "2024-10-10"),
-#   c("2024-10-11", "2024-10-20"),
-#   c("2024-10-21", "2024-10-31")
-# )
-
 ```
 
 # Run the function, count monthly data
@@ -223,29 +156,110 @@ monthly_counts <- count_results_by_date(api_key, search_engine_id, site, search_
 print(monthly_counts)
 ```
 
-```{r}
-# # Create a simple bar chart of monthly results
-barplot(monthly_counts$result_count,
-        names.arg = monthly_counts$date_range,
-        main = "DailyWire Articles Mentioning 'Kamala Harris' by Month",
-        xlab = "Month",
-        ylab = "Number of Articles",
-        col = "steelblue",
-        family = "sans")  # Using 'sans' as a default font family that should be available
-```
 
 
+# Graph monthly results
 
 ```{r}
-# Run the count for monthly segments
-august_counts <- count_results_by_date(api_key, search_engine_id, site, search_term, august_ranges)
-print(august_counts)
-
-#For other months,
-
-#october_counts <- count_results_by_date(api_key, search_engine_id, site, search_term, october_ranges)
-
+library(ggplot2)
+monthly_counts |> 
+  mutate(month = case_when(
+    str_detect(date_range, "2024-07-01") ~ "July",
+    str_detect(date_range, "2024-08-01") ~ "Aug",
+    str_detect(date_range, "2024-09-01") ~ "Sept",
+    str_detect(date_range, "2024-10-01") ~ "Oct",
+    str_detect(date_range, "2024-11-01") ~ "Nov",
+    TRUE ~ date_range  # Default case to handle any unmatched values
+  )) |> 
+  mutate(month = factor(month, levels = c("July", "Aug", "Sept", "Oct", "Nov"))) |>
+ggplot(aes(x = month, y = result_count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    title = "DailyWire Articles Mentioning 'Kamala Harris' by Month",
+    x = "Month",
+    y = "Number of Articles"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    text = element_text(family = "sans"),
+    plot.title = element_text(hjust = 0.5)
+  )
 ```
+
+# Query to fetch article URLs by date
+```{r}
+google_search_all <- function(api_key, search_engine_id) {
+  base_url <- "https://www.googleapis.com/customsearch/v1"
+  all_results <- data.frame(
+    url = character(),
+    title = character(),
+    snippet = character(),
+    stringsAsFactors = FALSE
+  )
+  
+
+  
+  # Google only allows up to 100 pages 
+  for(start_index in seq(1, 300, 10)) {
+     # Building the search query
+    query <- paste0('site:', site, ' "', search_term, '" after:', date_after, ' before:', date_before)
+    
+    # Add delay to avoid hitting rate limits
+    Sys.sleep(1)
+    
+    response <- GET(
+      base_url,
+      query = list(
+        key = api_key,
+        cx = search_engine_id,
+        q = query,
+        start = start_index,
+        personalization = "false",  # Disable personalization
+        gl = "us",                  # Set country to US
+        hl = "en"                   # Set language to English
+      )
+    )
+    
+    results <- fromJSON(rawToChar(response$content))
+    
+    # Check if we have items in the response
+    if(!is.null(results$items)) {
+      page_df <- data.frame(
+        url = results$items$link,
+        title = results$items$title,
+        snippet = results$items$snippet,
+        stringsAsFactors = FALSE
+      )
+      
+      all_results <- rbind(all_results, page_df)
+      
+      # Print progress
+      cat("Retrieved results", start_index, "to", start_index + nrow(page_df) - 1, "\n")
+    } else {
+      # If no more results, break the loop
+      break
+    }
+  }
+  
+  return(all_results)
+}
+
+# Search Query Parameters
+site <- "www.dailywire.com"
+search_term <- "kamala harris"
+#Dates
+date_after <- "2024-08-01"
+date_before <- "2024-08-10"
+
+# Get all results
+all_urls_df <- google_search_all(api_key, search_engine_id)
+# Remove any duplicates
+clean_urls_df <- unique(all_urls_df)
+# Print total number of results
+cat("\nTotal unique articles found:", nrow(clean_urls_df), "\n")
+```
+
 
 #-------------------------------------------------------------------------------
 # Part 2 : Scraping the text
@@ -255,8 +269,6 @@ print(august_counts)
 #I asked ChatGPT:  build a webscraper this into a function so it will extract URLs from Daily_Wire_Articles.xlsx from the URL column and produce one text file per article. there are 20 URLs on that list.
 
 ```{r}
-
-
 # Define the function to scrape a Daily Wire article
 scrape_article <- function(url) {
   # Read the HTML content of the page
@@ -292,7 +304,7 @@ scrape_article <- function(url) {
 # You will need to point to the location of your Daily Wire Articles spreadsheet.
 # urls <- read_excel("~/Code/CompText_Jour/data/Daily_Wire_Articles.xlsx", sheet = 1)$URL
 
-urls <- august_10_urls_df$url
+urls <- clean_urls_df$url
 # Create directory if it doesn't exist
 dir.create("extracted_articles", showWarnings = FALSE)
 
