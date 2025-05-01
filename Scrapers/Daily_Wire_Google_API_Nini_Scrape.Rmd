@@ -67,7 +67,32 @@ search_engine_id  <- Sys.getenv("GOOGLE_SEARCH_ENGINE_ID")
 ```
 
 # Count search results by date
+### Define your search parameters
+```{r}
+# Define your parameters
+site <- "www.dailywire.com"
+search_term <- "kamala harris"
 
+# Define date ranges to check (monthly intervals)
+date_ranges <- list(
+  c("2024-07-01", "2024-07-31"),
+  c("2024-08-01", "2024-08-31"),
+  c("2024-09-01", "2024-09-30"),
+  c("2024-10-01", "2024-10-31"),
+  c("2024-11-01", "2024-11-05")
+)
+
+# If you want to see how results are distributed within September
+# september_ranges <- list(
+#   c("2024-09-01", "2024-09-10"),
+#   c("2024-09-11", "2024-09-20"),
+#   c("2024-09-21", "2024-09-30")
+# )
+
+```
+
+
+# Create the search function
 ```{r}
 #New version specifies Google search in the US, use English and disables personalization of search results. All done for consistent results.
 count_results_by_date <- function(api_key, search_engine_id, site, search_term, date_ranges) {
@@ -127,25 +152,6 @@ count_results_by_date <- function(api_key, search_engine_id, site, search_term, 
   return(results_count)
 }
 
-# Define your parameters
-site <- "www.dailywire.com"
-search_term <- "kamala harris"
-
-# Define date ranges to check (monthly intervals)
-date_ranges <- list(
-  c("2024-07-01", "2024-07-31"),
-  c("2024-08-01", "2024-08-31"),
-  c("2024-09-01", "2024-09-30"),
-  c("2024-10-01", "2024-10-31"),
-  c("2024-11-01", "2024-11-05")
-)
-
-# If you want to see how results are distributed within September
-# september_ranges <- list(
-#   c("2024-09-01", "2024-09-10"),
-#   c("2024-09-11", "2024-09-20"),
-#   c("2024-09-21", "2024-09-30")
-# )
 
 ```
 
@@ -188,6 +194,19 @@ ggplot(aes(x = month, y = result_count)) +
 ```
 
 # Query to fetch article URLs by date
+
+### Specify search query parameters
+```{r}
+site <- "www.dailywire.com"
+search_term <- "kamala harris"
+#Dates
+date_after <- "2024-08-01"
+date_before <- "2024-08-10"
+```
+
+
+# Search query to extract the URLS
+
 ```{r}
 google_search_all <- function(api_key, search_engine_id) {
   base_url <- "https://www.googleapis.com/customsearch/v1"
@@ -244,13 +263,6 @@ google_search_all <- function(api_key, search_engine_id) {
   
   return(all_results)
 }
-
-# Search Query Parameters
-site <- "www.dailywire.com"
-search_term <- "kamala harris"
-#Dates
-date_after <- "2024-08-01"
-date_before <- "2024-08-10"
 
 # Get all results
 all_urls_df <- google_search_all(api_key, search_engine_id)
