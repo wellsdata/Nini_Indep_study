@@ -1,0 +1,524 @@
+---
+title: "Daily Wire Scraper"
+author: "Rob Wells and his pal Claude.ai"
+date: "05-01-2025"
+  output:
+  html_document: default
+  pdf_document: default
+---
+
+This notebook runs a Google power search query on a specific news site and then scrapes the results into individual text files into a separate folder. It compiles an index of the results with headline, date and URL.
+
+It uses the Google Search API which is a rough way to extract article text from a website without the API access.
+
+There are important limitations:
+
+Google Search API limits results to 100 specific URLs at a time. 
+
+For researchers seeking to several hundred or several thousand results, you can get around that by determining the result distribution and then breaking up the searches into blocks of 100 and compiling the results.
+
+The first step is to use Google power search operators to find your material and validate the search results. We did this to get all Kamala Harris articles on the Daily Wire:
+
+site:www.dailywire.com "kamala harris" after:2024-08-01 before:2024-08-10
+
+Special thanks Nino Mtchedlisvili for her assistance on this project.
+
+
+```{r}
+# Install and load required packages if not already installed
+#install.packages("rvest")
+library(rvest)
+library(tidyverse)
+library(jsonlite)
+library(httr)
+#install.packages("googleAuthR")
+library(googleAuthR)
+library(lubridate)
+```
+
+
+# Set up API credentials
+```{r}
+# You'll need to get these from Google Cloud Console
+# Visit: https://console.cloud.google.com/
+# 1. Create a project
+# 2. Enable Custom Search API
+# 3. Create credentials
+# 4. Set up a Custom Search Engine at https://programmablesearchengine.google.com/
+```
+
+# Important! DO NOT STORE YOUR API Key in GitHub!
+
+```{r echo=FALSE}
+
+Sys.setenv(GOOGLE_SEARCH_API_KEY = "XXX")
+Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "XXX")
+
+
+```
+
+# Your credentials here
+System environment variables exist at the operating system level, providing a more secure way to store sensitive information like API keys. They won't appear in your normal R environment but remain accessible across different sessions. You retrieve them using Sys.getenv(). These credentials typically persist only for the duration of your current R session.
+```{r}
+
+api_key <- Sys.getenv("GOOGLE_SEARCH_API_KEY")
+search_engine_id  <- Sys.getenv("GOOGLE_SEARCH_ENGINE_ID")
+
+```
+
+# Count search results by date
+### Define your search parameters
+```{r}
+# Define your parameters
+site <- "www.dailywire.com"
+search_term <- "kamala harris"
+
+# Define date ranges to check (monthly intervals)
+date_ranges <- list(
+    c("2024-09-01", "2024-09-10"),
+  c("2024-09-11", "2024-09-20"),
+  c("2024-09-21", "2024-09-30")
+)
+
+
+  # c("2024-07-01", "2024-07-31"),
+  # c("2024-08-01", "2024-08-31"),
+  # c("2024-09-01", "2024-09-30"),
+  # c("2024-10-01", "2024-10-31"),
+  # c("2024-11-01", "2024-11-05")
+# If you want to see how results are distributed within September
+# september_ranges <- list(
+#   c("2024-09-01", "2024-09-10"),
+#   c("2024-09-11", "2024-09-20"),
+#   c("2024-09-21", "2024-09-30")
+# )
+
+```
+
+
+# Create the search function
+```{r}
+#New version specifies Google search in the US, use English and disables personalization of search results. All done for consistent results.
+count_results_by_date <- function(api_key, search_engine_id, site, search_term, date_ranges) {
+  #creates empty dataframe that stores search result counts
+  results_count <- data.frame(
+    date_range = character(),
+    result_count = numeric(),
+    stringsAsFactors = FALSE
+  )
+  
+  for (date_range in date_ranges) {
+    # Building the search query
+    query <- paste0('site:', site, ' "', search_term, '" after:', date_range[1], ' before:', date_range[2])
+    
+    # Make the API request
+    response <- GET(
+      "https://www.googleapis.com/customsearch/v1",
+      query = list(
+        key = api_key,
+        cx = search_engine_id,
+        q = query,
+        num = 1,  # requests only 1 result -only need the count, not actual results
+        personalization = "false",  # Disable personalization
+        gl = "us",                  # Set country to US
+        hl = "en"                   # Set language to English
+      )
+    )
+    
+    # Parse the response
+    # Checks if the API request was successful (status code 200)
+    if (status_code(response) == 200) {
+      results <- fromJSON(rawToChar(response$content))
+      
+      # Extracts the total result count 
+      total_results <- as.numeric(results$searchInformation$totalResults)
+      
+      # Add to dataframe
+      new_row <- data.frame(
+        date_range = paste(date_range[1], "to", date_range[2]),
+        result_count = total_results,
+        stringsAsFactors = FALSE
+      )
+      
+      results_count <- rbind(results_count, new_row)
+      
+      message("Query: ", query)
+      message("Results: ", total_results)
+    } else {
+      message("Error for date range ", date_range[1], " to ", date_range[2], 
+              ": Status code ", status_code(response))
+    }
+    
+    # One second pause to avoid hitting rate limits with API query
+    Sys.sleep(1.5)
+  }
+  #Returns the completed data frame containing all date ranges and their corresponding result counts
+  return(results_count)
+}
+
+
+```
+
+# Run the function, count monthly data
+```{r}
+monthly_counts <- count_results_by_date(api_key, search_engine_id, site, search_term, date_ranges) 
+# View results
+print(monthly_counts)
+```
+
+```{r}
+get_results_with_urls <- function(api_key, search_engine_id, site, search_term, date_ranges) {
+  library(httr)
+  library(jsonlite)
+  
+  # Create a list to store results for each date range
+  all_results <- list()
+  
+  for (i in seq_along(date_ranges)) {
+    date_range <- date_ranges[i]
+    
+    # Format search query with date range
+    query <- paste0(site, " ", search_term, " ", date_range)
+    
+    # Make API request to Google Search
+    response <- GET(
+      url = "https://www.googleapis.com/customsearch/v1",
+      query = list(
+        key = api_key,
+        cx = search_engine_id,
+        q = query
+      )
+    )
+    
+    # Get the raw text response
+    response_text <- content(response, "text", encoding = "UTF-8")
+    
+    # Parse JSON manually
+    parsed_json <- fromJSON(response_text)
+    
+    # Extract count
+    count <- 0
+    if (!is.null(parsed_json$searchInformation$totalResults)) {
+      count <- as.integer(parsed_json$searchInformation$totalResults)
+    }
+    
+    # Create a result object for this date range
+    result_obj <- list(
+      date_range = date_range,
+      count = count,
+      items = list()
+    )
+    
+    # Extract items if they exist
+    if (count > 0 && !is.null(parsed_json$items)) {
+      # Create simple data frame of search results
+      items_df <- data.frame(
+        title = character(),
+        url = character(),
+        snippet = character(),
+        stringsAsFactors = FALSE
+      )
+      
+      # Add each search result item to the data frame
+      for (item in parsed_json$items) {
+        item_title <- ifelse(is.null(item$title), NA_character_, item$title)
+        item_url <- ifelse(is.null(item$link), NA_character_, item$link)
+        item_snippet <- ifelse(is.null(item$snippet), NA_character_, item$snippet)
+        
+        # Add to data frame one row at a time
+        items_df <- rbind(items_df, data.frame(
+          title = item_title,
+          url = item_url,
+          snippet = item_snippet,
+          stringsAsFactors = FALSE
+        ))
+      }
+      
+      result_obj$items <- items_df
+    }
+    
+    # Store this result in our list
+    all_results[[i]] <- result_obj
+  }
+  
+  # Return the list of results
+  return(all_results)
+}
+
+results <- get_results_with_urls(api_key, search_engine_id, site, search_term, date_ranges)
+```
+
+```{r}
+# Print the search results in a readable format
+print_search_results <- function(results) {
+  for (i in seq_along(results)) {
+    result <- results[[i]]
+    
+    cat("\n===== Date Range:", result$date_range, "=====\n")
+    cat("Total Results:", result$count, "\n\n")
+    
+    if (length(result$items) > 0) {
+      for (j in seq_along(result$items)) {
+        item <- result$items[[j]]
+        cat(j, ". ", item$title, "\n")
+        cat("   URL: ", item$url, "\n")
+        cat("   Snippet: ", item$snippet, "\n\n")
+      }
+    } else {
+      cat("No search results found for this date range.\n\n")
+    }
+    
+    cat("--------------------------------------\n")
+  }
+}
+```
+
+
+
+
+```{r}
+# Convert results list to a data frame
+results_to_dataframe <- function(results_list) {
+  # Create empty data frame
+  all_data <- data.frame(
+    date_range = character(),
+    count = integer(),
+    url = character(),
+    title = character(),
+    snippet = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  # Process each date range
+  for (result in results_list) {
+    # If there are URLs for this date range
+    if (length(result$urls) > 0) {
+      # Create a data frame for this date range's results
+      date_df <- data.frame(
+        date_range = rep(result$date_range, length(result$urls)),
+        count = rep(result$count, length(result$urls)),
+        url = result$urls,
+        title = result$titles,
+        snippet = result$snippets,
+        stringsAsFactors = FALSE
+      )
+      
+      # Append to overall data frame
+      all_data <- rbind(all_data, date_df)
+    } else {
+      # Add a row with just the date range and count, but NA for URL info
+      all_data <- rbind(all_data, data.frame(
+        date_range = result$date_range,
+        count = result$count,
+        url = NA_character_,
+        title = NA_character_,
+        snippet = NA_character_,
+        stringsAsFactors = FALSE
+      ))
+    }
+  }
+  
+  return(all_data)
+}
+
+
+results_df <- results_to_dataframe(results)
+```
+
+
+
+# Graph monthly results
+
+```{r}
+library(ggplot2)
+monthly_counts |> 
+  mutate(month = case_when(
+    str_detect(date_range, "2024-07-01") ~ "July",
+    str_detect(date_range, "2024-08-01") ~ "Aug",
+    str_detect(date_range, "2024-09-01") ~ "Sept",
+    str_detect(date_range, "2024-10-01") ~ "Oct",
+    str_detect(date_range, "2024-11-01") ~ "Nov",
+    TRUE ~ date_range  # Default case to handle any unmatched values
+  )) |> 
+  mutate(month = factor(month, levels = c("July", "Aug", "Sept", "Oct", "Nov"))) |>
+ggplot(aes(x = month, y = result_count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    title = "DailyWire Articles Mentioning 'Kamala Harris' by Month",
+    x = "Month",
+    y = "Number of Articles"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    text = element_text(family = "sans"),
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+# Query to fetch article URLs by date
+
+### Specify search query parameters
+```{r}
+site <- "www.dailywire.com"
+search_term <- "kamala harris"
+#Dates
+date_after <- "2024-09-01"
+date_before <- "2024-09-10"
+```
+
+
+# Search query to extract the URLS
+
+```{r}
+google_search_all <- function(api_key, search_engine_id) {
+  base_url <- "https://www.googleapis.com/customsearch/v1"
+  all_results <- data.frame(
+    url = character(),
+    title = character(),
+    snippet = character(),
+    stringsAsFactors = FALSE
+  )
+  
+
+  
+  # Google only allows up to 100 pages 
+  for(start_index in seq(1, 300, 10)) {
+     # Building the search query
+    query <- paste0('site:', site, ' "', search_term, '" after:', date_after, ' before:', date_before)
+    
+    # Add delay to avoid hitting rate limits
+    Sys.sleep(1)
+    
+    response <- GET(
+      base_url,
+      query = list(
+        key = api_key,
+        cx = search_engine_id,
+        q = query,
+        start = start_index,
+        personalization = "false",  # Disable personalization
+        gl = "us",                  # Set country to US
+        hl = "en"                   # Set language to English
+      )
+    )
+    
+    results <- fromJSON(rawToChar(response$content))
+    
+    # Check if we have items in the response
+    if(!is.null(results$items)) {
+      page_df <- data.frame(
+        url = results$items$link,
+        title = results$items$title,
+        snippet = results$items$snippet,
+        stringsAsFactors = FALSE
+      )
+      
+      all_results <- rbind(all_results, page_df)
+      
+      # Print progress
+      cat("Retrieved results", start_index, "to", start_index + nrow(page_df) - 1, "\n")
+    } else {
+      # If no more results, break the loop
+      break
+    }
+        # One second pause to avoid hitting rate limits with API query
+    Sys.sleep(2.5)
+  }
+  
+  return(all_results)
+}
+
+# Get all results
+all_urls_df <- google_search_all(api_key, search_engine_id)
+# Remove any duplicates
+clean_urls_df <- unique(all_urls_df)
+# Print total number of results
+cat("\nTotal unique articles found:", nrow(clean_urls_df), "\n")
+```
+
+
+#-------------------------------------------------------------------------------
+# Part 2 : Scraping the text
+#-------------------------------------------------------------------------------
+
+
+#I asked ChatGPT:  build a webscraper this into a function so it will extract URLs from Daily_Wire_Articles.xlsx from the URL column and produce one text file per article. there are 20 URLs on that list.
+
+```{r}
+# Define the function to scrape a Daily Wire article
+scrape_article <- function(url) {
+  # Read the HTML content of the page
+  page <- tryCatch(
+    read_html(url),
+    error = function(e) {
+      message(paste("Error reading:", url))
+      return(NULL)
+    }
+  )
+  
+  # Return NULL if page could not be loaded
+  if (is.null(page)) return(NULL)
+
+  # Extract the headline (assuming it's in an <h1> tag)
+  headline <- page %>%
+    html_element("h1") %>%
+    html_text(trim = TRUE)
+
+  # Extract the article text (all <p> elements)
+  article_text <- page %>%
+    html_elements("p") %>%
+    html_text(trim = TRUE) %>%
+    paste(collapse = "\n")
+
+  # Combine headline and article into one string
+  full_text <- paste("Headline:\n", headline, "\n\nArticle Text:\n", article_text)
+  
+  return(full_text)
+}
+
+# Read the URLs from the Excel file
+# You will need to point to the location of your Daily Wire Articles spreadsheet.
+# urls <- read_excel("~/Code/CompText_Jour/data/Daily_Wire_Articles.xlsx", sheet = 1)$URL
+
+urls <- clean_urls_df$url
+# Create directory if it doesn't exist
+dir.create("extracted_articles", showWarnings = FALSE)
+
+# Loop over URLs and save each article as a text file
+for (url in urls) {
+  article_content <- scrape_article(url)
+  
+  # Skip if article content is NULL
+  if (is.null(article_content)) next
+  
+  # Create a filename from the URL (using only the last part)
+  filename <- paste0(basename(url), ".txt")
+  
+  # Create the full path including the new directory
+  filepath <- file.path("extracted_articles", filename)
+  
+  # Save the article content to a text file in the new directory
+  writeLines(article_content, con = filepath)
+  
+  message(paste("Saved:", filepath))
+}
+
+```
+
+#Create a final index
+
+```{r}
+#add the url_df here
+final_index <- rbind(august_10_urls_df, sept_urls_df) |> 
+  # Extract date pattern from snippet column
+  mutate(date_str = str_extract(snippet, "[A-Z][a-z]{2}\\s+\\d{1,2},\\s+\\d{4}")) %>%
+  # Convert extracted strings to Date objects
+  mutate(date = mdy(date_str)) %>%
+  # Remove the intermediate string column if you don't need it
+  select(-date_str)
+
+
+write.csv(final_index, "daily_wire_extracted_articles.csv")
+```
+
