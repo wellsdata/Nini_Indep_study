@@ -51,8 +51,8 @@ library(lubridate)
 
 ```{r echo=FALSE}
 
-Sys.setenv(GOOGLE_SEARCH_API_KEY = "XXX")
-Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "XXXX")
+Sys.setenv(GOOGLE_SEARCH_API_KEY = "xxxxx")
+Sys.setenv(GOOGLE_SEARCH_ENGINE_ID = "xxxx")
 
 
 ```
@@ -70,16 +70,14 @@ search_engine_id  <- Sys.getenv("GOOGLE_SEARCH_ENGINE_ID")
 ### Define your search parameters
 ```{r}
 # Define your parameters
-site <- "www.dailywire.com"
+site <- "www.breitbart.com"
 search_term <- "kamala harris"
 
 # Define date ranges to check (monthly intervals)
 date_ranges <- list(
-  c("2024-07-01", "2024-07-31"),
-  c("2024-08-01", "2024-08-31"),
-  c("2024-09-01", "2024-09-30"),
-  c("2024-10-01", "2024-10-31"),
-  c("2024-11-01", "2024-11-05")
+  c("2024-08-01", "2024-08-10"),
+  c("2024-08-11", "2024-08-20"),
+  c("2024-08-21", "2024-08-31")
 )
 
 # If you want to see how results are distributed within September
@@ -105,7 +103,7 @@ count_results_by_date <- function(api_key, search_engine_id, site, search_term, 
   
   for (date_range in date_ranges) {
     # Building the search query
-    query <- paste0('site:', site, ' "', search_term, '" after:', date_range[1], ' before:', date_range[2])
+    query <- paste0('site:', site, ' "', search_term, '" after:', as.Date(date_range[1]) - 1, ' before:', as.Date(date_range[2]) + 1)
     
     # Make the API request
     response <- GET(
@@ -167,41 +165,43 @@ print(monthly_counts)
 # Graph monthly results
 
 ```{r}
-library(ggplot2)
+
+
+# Categorize date ranges into parts of the month
 monthly_counts |> 
-  mutate(month = case_when(
-    str_detect(date_range, "2024-07-01") ~ "July",
-    str_detect(date_range, "2024-08-01") ~ "Aug",
-    str_detect(date_range, "2024-09-01") ~ "Sept",
-    str_detect(date_range, "2024-10-01") ~ "Oct",
-    str_detect(date_range, "2024-11-01") ~ "Nov",
-    TRUE ~ date_range  # Default case to handle any unmatched values
-  )) |> 
-  mutate(month = factor(month, levels = c("July", "Aug", "Sept", "Oct", "Nov"))) |>
-ggplot(aes(x = month, y = result_count)) +
+  mutate(month_portion = case_when(
+    str_detect(date_range, "2024-08-01|2024-08-02|2024-08-03|2024-08-04|2024-08-05|2024-08-06|2024-08-07|2024-08-08|2024-08-09|2024-08-10") ~ "Aug 1–10",
+    str_detect(date_range, "2024-08-11|2024-08-12|2024-08-13|2024-08-14|2024-08-15|2024-08-16|2024-08-17|2024-08-18|2024-08-19|2024-08-20") ~ "Aug 11–20",
+    str_detect(date_range, "2024-08-21|2024-08-22|2024-08-23|2024-08-24|2024-08-25|2024-08-26|2024-08-27|2024-08-28|2024-08-29|2024-08-30|2024-08-31") ~ "Aug 21–31",
+    TRUE ~ "Other"
+  )) |>
+  filter(month_portion != "Other") |>  # Exclude anything unmatched
+  mutate(month_portion = factor(month_portion, levels = c("Aug 1–10", "Aug 11–20", "Aug 21–31"))) |> 
+  ggplot(aes(x = month_portion, y = result_count)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   labs(
-    title = "DailyWire Articles Mentioning 'Kamala Harris' by Month",
-    x = "Month",
+    title = "DailyWire Articles Mentioning 'Kamala Harris' in August 2024",
+    x = "Date Range",
     y = "Number of Articles"
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
     text = element_text(family = "sans"),
     plot.title = element_text(hjust = 0.5)
   )
+
 ```
 
 # Query to fetch article URLs by date
 
 ### Specify search query parameters
 ```{r}
-site <- "www.dailywire.com"
+site <- "www.breitbart.com"
 search_term <- "kamala harris"
 #Dates
-date_after <- "2024-08-01"
-date_before <- "2024-08-10"
+date_after <- "2024-11-01"
+date_before <- "2024-11-05"
 ```
 
 
@@ -264,10 +264,10 @@ google_search_all <- function(api_key, search_engine_id) {
   return(all_results)
 }
 
-# Get all results
-all_urls_df <- google_search_all(api_key, search_engine_id)
+#  all results
+BR_kh_nov5_urls_df <- google_search_all(api_key, search_engine_id)
 # Remove any duplicates
-clean_urls_df <- unique(all_urls_df)
+clean_urls_df <- unique(BR_kh_nov5_urls_df)
 # Print total number of results
 cat("\nTotal unique articles found:", nrow(clean_urls_df), "\n")
 ```
@@ -318,7 +318,7 @@ scrape_article <- function(url) {
 
 urls <- clean_urls_df$url
 # Create directory if it doesn't exist
-dir.create("extracted_articles", showWarnings = FALSE)
+dir.create("BR_kh_nov5_extracted_articles", showWarnings = FALSE)
 
 # Loop over URLs and save each article as a text file
 for (url in urls) {
@@ -331,7 +331,7 @@ for (url in urls) {
   filename <- paste0(basename(url), ".txt")
   
   # Create the full path including the new directory
-  filepath <- file.path("extracted_articles", filename)
+  filepath <- file.path("BR_kh_nov5_extracted_articles", filename)
   
   # Save the article content to a text file in the new directory
   writeLines(article_content, con = filepath)
@@ -345,7 +345,7 @@ for (url in urls) {
 
 ```{r}
 #add the url_df here
-final_index <- rbind(august_10_urls_df, sept_urls_df) |> 
+final_index <- rbind(BR_kh_nov5_urls_df) |> 
   # Extract date pattern from snippet column
   mutate(date_str = str_extract(snippet, "[A-Z][a-z]{2}\\s+\\d{1,2},\\s+\\d{4}")) %>%
   # Convert extracted strings to Date objects
@@ -354,6 +354,6 @@ final_index <- rbind(august_10_urls_df, sept_urls_df) |>
   select(-date_str)
 
 
-write.csv(final_index, "daily_wire_extracted_articles.csv")
+write.csv(final_index, "BR_kh_nov5_extracted_articles.csv")
 ```
 

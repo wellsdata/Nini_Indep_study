@@ -1,0 +1,27 @@
+Headline:
+ Mark Zuckerberg Claims There Is No Direct Link Between Social Media and Teen Mental Health Crisis 
+
+Article Text:
+ Meta CEO Mark Zuckerberg has pushed back against the notion that social media directly harms the mental health of teenagers, despite growing concerns and calls for increased regulation in the industry. His position is even more extraordinary given the fact that Meta’s own internal researchers determined that his social media platforms are terrible for the mental health of teenagers, especially young women and girls.
+In a recent interview with the Verge, Mark Zuckerberg addressed the ongoing debate surrounding the impact of Meta’s Facebook and Instagram social media platforms on the mental well-being of adolescents. Zuckerberg asserted that there is no direct causal connection between social media use and poor mental health outcomes in teens, citing the majority of high-quality research on the subject.
+This statement echoes Zuckerberg’s testimony before Congress in January, where he argued that existing research has not definitively established a causal link between social media and negative mental health effects in young users. However, proving such causal relationships is inherently challenging, and current research suggests that social media can have both positive and negative impacts on the mental health of adolescents.
+Zuckerberg acknowledged the complex nature of the issue, stating, “The academic research shows something that I think, to me, fits more with what I’ve seen of how the platforms operate. But it’s counter to what a lot of people think, and I think that’s going to be a reckoning that we’ll have to have.” He emphasized the importance of providing parents with the necessary tools to monitor and limit their children’s social media use, rather than placing the onus solely on the platforms themselves.
+In response to growing concerns, Instagram, owned by Meta, recently announced plans to move all teenage users into more private accounts with restricted direct messaging capabilities and a “Sleep Mode” feature to limit notifications during nighttime hours. Meta also introduced a suite of parental controls for Instagram and Messenger last year, granting parents greater insight into their children’s activities on the platforms.
+The debate surrounding social media’s impact on teen mental health intensified following the release of the Facebook Papers in 2021, which contained internal documents suggesting that Meta was aware of the negative effects Instagram had on some teenage users. In the wake of these revelations, U.S. lawmakers have increased efforts to implement age verification measures for social media platforms, with some advocating for tobacco-style warning labels on the networks.
+Breitbart News reported extensively on the revelations from the Facebook Papers, including that the company’s internal researchers found that Instagram is toxic for teen girls.
+The Wall Street Journal reported:
+“Thirty-two percent of teen girls said that when they felt bad about their bodies, Instagram made them feel worse,” the researchers said in a March 2020 slide presentation posted to Facebook’s internal message board, reviewed by The Wall Street Journal. “Comparisons on Instagram can change how young women view and describe themselves.”
+…
+“We make body image issues worse for one in three teen girls,” said one slide from 2019, summarizing research about teen girls who experience the issues.
+“Teens blame Instagram for increases in the rate of anxiety and depression,” said another slide. “This reaction was unprompted and consistent across all groups.”
+Among teens who reported suicidal thoughts, 13% of British users and 6% of American users traced the desire to kill themselves to Instagram, one presentation showed.
+Zuckerberg reiterated his belief that app store owners, such as Google and Apple, should be responsible for handling age verification, rather than individual platforms. He argued that it is “not very excusable” for these companies to avoid taking responsibility for such measures, given that age verification is already essentially in place for every payment transaction made on smartphones.
+Despite his skepticism about the direct links between social media and mental health issues, Zuckerberg assured that Meta will comply with any government directives and laws related to child safety if they are passed. He added, “I would say that the ability to get push notifications and get distracted, from my perspective, seems like a much greater contributor to mental health issues than a lot of the specific apps.”
+Read more at the Verge here.
+Lucas Nolan is a reporter for Breitbart News covering issues of free speech and online censorship.
+Please let us know if you're having issues with commenting.
+
+
+
+
+Copyright © 2025 Breitbart

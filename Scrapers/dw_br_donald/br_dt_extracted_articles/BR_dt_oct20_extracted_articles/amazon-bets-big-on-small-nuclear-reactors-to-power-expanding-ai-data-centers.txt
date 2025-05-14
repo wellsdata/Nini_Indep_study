@@ -1,0 +1,22 @@
+Headline:
+ Amazon Bets Big on Small Nuclear Reactors to Power Expanding AI Data Centers 
+
+Article Text:
+ Amazon is investing heavily in advanced small modular nuclear reactors to meet the rapidly growing power demands of its expanding data centers across the United States. Tech giants are finding the power needs of AI data centers to be insatiable — and nuclear power the only way to keep their servers running.
+Forbes reports that Amazon has announced three major deals to develop and deploy small modular nuclear reactors (SMRs) to power its data centers in Virginia, Washington, and other states. The tech giant has partnered with Dominion Energy, Energy Northwest, and nuclear startup X-energy to bring more than 5 gigawatts of new power projects online by 2039, enough electricity to power a mid-sized city.
+Amazon Web Services (AWS) CEO Matt Garman expressed the company’s growing confidence in nuclear power as a scalable, cost-effective, and “carbon-free” solution to meet the ballooning energy needs driven by the rise of AI. Data centers, particularly those focused on AI applications, consume massive amounts of electricity, with AI-oriented facilities using around 80 megawatts compared to 32 megawatts for a typical data center.
+SMRs offer several advantages over traditional nuclear power plants. They are smaller, cheaper, and faster to build, and can be located close to data centers for efficient power delivery. Unlike solar and wind power, SMRs provide reliable, round-the-clock energy, making them ideal for the nonstop operations of data centers and factories.
+However, the technology is still in its early stages, with no SMRs currently operating in the United States. Questions remain about their cost and feasibility, and the management of radioactive waste remains a concern. Despite these challenges, the U.S. Department of Energy projects that nuclear capacity could triple from 100 gigawatts in 2024 to 300 gigawatts by 2050 to meet the demands of decarbonization and continuous power supply.
+Amazon’s partnership with Dominion Energy aims to develop an SMR plant near the utility’s existing North Anna power station in Louisa County, Virginia, close to two of Amazon’s new $11 billion data center projects. In Washington state, Amazon is funding the development and deployment of SMRs with public power agency Energy Northwest, using technology from nuclear startup X-energy.
+As part of its agreement with X-energy, Amazon is anchoring a $500 million investment in the startup through its Climate Pledge Fund. The two companies plan to bring more than 5 gigawatts of new power projects online across the U.S. by 2039. X-energy CEO Clay Sell expects the company’s first SMR project for Dow Chemical in Texas to come online by the end of the decade, with Amazon projects following soon after.
+Breitbart News reported last month that Microsoft is planning to revive the infamous Three Mile Island nuclear facility to fuel its power-sucking AI applications:
+Bloomberg reports that in a move that demonstrates the constantly growing energy demands of AI, Microsoft has struck a deal with Constellation Energy, the largest US operator of nuclear reactors, to resurrect the shuttered Three Mile Island nuclear plant in Pennsylvania. The tech giant has agreed to purchase all the output from the plant, which is set to go back into service in 2028, as it seeks to secure a reliable source of carbon-free electricity for its data centers.
+The $1.6 billion investment by Constellation Energy aims to revive one of the two reactors at the Three Mile Island site, which has been dormant since 2019 due to its inability to compete economically. The other reactor at the plant was permanently closed nearly half a century ago following the worst nuclear accident in US history.
+Read more at Forbes here.
+Lucas Nolan is a reporter for Breitbart News covering issues of free speech and online censorship.
+Please let us know if you're having issues with commenting.
+
+
+
+
+Copyright © 2025 Breitbart

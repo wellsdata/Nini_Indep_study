@@ -1,0 +1,19 @@
+Headline:
+ Nate Silver Explains Why He Is Skeptical Of Battleground State Polling 
+
+Article Text:
+ "The odds are 1 in 9.5 trillion against at least this many polls showing such a close margin,” Silver said.
+Statistician and polling analyst Nate Silver says that late-election polling groups are “herding” their survey results, or fidgeting with the fundamentals to rig the outcomes of their surveys.
+A statistically anomalous amount of October poll results show Vice President Kamala Harris and former President Donald Trump neck-and-neck in the swing states that could decide the 2024 election, according to Siver. Even if the candidates are running tight races in each of the swing states, normal variations in polling should show a wider smattering of results than currently exists.
+Silver’s election forecasting model has a database of 249 polls that were at least partly done in month of October in battleground states. Of those polls, 193 of them, or nearly 80%, show Harris and Trump within 2.5 points, a statistical tie.
+“That’s way more than you should get in theory — even if the candidates are actually exactly tied in all seven states, which they almost certainly aren’t,” Silver reported in Friday’s edition of his newsletter, Silver Bulletin. “Based on a binomial distribution — which assumes that all polls are independent of one another, which theoretically they should be — it’s realllllllllllllly unlikely. Specifically, the odds are 1 in 9.5 trillion against at least this many polls showing such a close margin.”
+Silver said the most suspicious polling results have come out of Wisconsin.
+“There, 33 of 36 polls — more than 90 percent — have had the race within 2.5 points. In theory, there’s just a 1 in 2.8 million chance that so many polls would show the Badger State so close,” he said.
+“In Pennsylvania, which is the most likely tipping-point state — so weighing in there is tantamount to weighing in on the Electoral College — the problems are nearly as bad,” he continued. “There, 42 of 47 polls show the Trump-Harris margin within 2.5 points — about a 300,000 to 1 ‘coincidence.’”
+Polls across Arizona, Georgia, and Michigan appear to be suffering from herding, as well. The herding is less focused on an even split, however, as results in those states have tended to favor one candidate or the other, so pollsters can project a leader without straying outside of the average cluster of polls, according to Silver.
+“This is a clear-as-day example of what we call herding: the tendency of some polling firms to move with the flock by file-drawering (not publishing) results that don’t match the consensus or torturing their turnout models until they do,” the polling analyst said.
+In addition to Silver, Nate Cohen, the chief political analyst for The New York Times, has also voiced some concern that polling results may be flawed. Herding notwithstanding, Cohen says that pollsters may still be undercounting Trump’s support because of the difficulty of projecting his voter base.
+“Across these final polls, white Democrats were 16 percent likelier to respond than white Republicans. That’s a larger disparity than our earlier polls this year, and it’s not much better than our final polls in 2020 — even with the pandemic over. It raises the possibility that the polls could underestimate Mr. Trump yet again,” Cohen said of the latest New York Times/Sienna College poll, the final poll for the paper before the 2024 election.
+Already have an account?
+Your information could be the missing piece to an important story. Submit your tip today and make a difference.
+Stay up-to-date on the latestnews, podcasts, and more.

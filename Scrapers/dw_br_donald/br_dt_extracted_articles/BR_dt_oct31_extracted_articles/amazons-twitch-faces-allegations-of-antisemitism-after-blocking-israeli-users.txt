@@ -1,0 +1,19 @@
+Headline:
+ Amazon’s Twitch Faces Allegations of Antisemitism After Blocking Israeli Users 
+
+Article Text:
+ Amazon’s popular livestreaming platform Twitch has apologized after Israeli users discovered they were unable to create new accounts, sparking accusations of antisemitism against the company. The company is also under fire for hosting a panel in which pro-Palestinian streamers ranked their peers from “Arab” to “Loves Sabra,” a reference to Israeli-born Jews.
+Haaretz reports that Twitch, the well-known video live-streaming platform owned by Amazon, has found itself embroiled in controversy after Israeli users revealed they were blocked from registering new accounts on the site. The issue came to light when Ran Bar-Zik shared his discovery on his X (formerly Twitter) profile, noting that Twitch had imposed a ban targeting users with Israeli internet addresses. The company initially remained silent on the matter for several days before eventually issuing an apology on its own X account.
+In its lengthy statement, Twitch attempted to explain the rationale behind the ban, claiming it was part of an effort to prevent the uploading of violent content in the wake of the devastating October 7 attacks by Hamas on Israeli border communities last year. The attacks, which claimed the lives of approximately 1,200 people, sparked the ongoing war between Israel and Hamas. Twitch stated that the ban specifically targeted the email verification process for account creation but was inadvertently left in place long after it should have been lifted.
+However, many users found Twitch’s explanation unsatisfactory, pointing out that the ban appeared to be based on Internet Protocol (IP) addresses rather than email verification. Critics also questioned why the block persisted for months despite numerous complaints from Israeli users and why similar restrictions were not placed on users from other conflict zones, such as Ukraine.
+This incident is not the first time Twitch has faced accusations of antisemitism. Earlier this week, a viral clip from a panel at TwitchCon, the platform’s annual convention, featured well-known streamers ranking other streamers on a scale ranging from “Arab” to “Loves Sabra,” with the latter representing the lowest ranking. Given that Sabra is a common term for Israeli-born Jews and the first person ranked at the bottom was Jewish streamer Ethan Klein (known as h3h3), many interpreted the ranking as a scale from “Arab to Jew.” One panelist even suggested adding a lower category called “Zionist,” which was met with applause from the audience.
+Klein himself responded to the incident, accusing the panelists of having a history of making antisemitic comments under the guise of criticizing Israel or Zionism. He also claimed that Twitch has a track record of problematic behavior towards Jews, or at least tolerating antisemitic statements, citing cases involving popular streamers Fresh and Fit, who posted antisemitic tweets, and Sneako, who praised Hamas. Both were temporarily suspended but not permanently banned.
+Another notable case is that of Hasan Piker (HasanAbi), a Turkish-American streamer who presents himself as a left-wing commentator. Piker has hosted anti-American and anti-Israeli guests on his channel, including a “Houthi pirate” who discussed the activities of the Yemeni Islamist rebel group known for slogans such as “Death to America” and “Curse the Jews.” Despite spreading false information and anti-Israel propaganda, Piker has faced little action from Twitch, receiving only a one-week suspension for a specific comment.
+Read more at Haaretz here.
+Lucas Nolan is a reporter for Breitbart News covering issues of free speech and online censorship.
+Please let us know if you're having issues with commenting.
+
+
+
+
+Copyright © 2025 Breitbart

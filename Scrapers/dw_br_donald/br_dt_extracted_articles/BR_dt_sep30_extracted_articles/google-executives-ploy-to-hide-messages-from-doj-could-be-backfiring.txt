@@ -1,0 +1,21 @@
+Headline:
+ Google Executives’ Ploy to Hide Messages from DOJ Could Be Backfiring 
+
+Article Text:
+ Google employees and executives attempted to hide potentially damaging communications from investigators by using auto-deleting chats and marking emails “privileged and confidential” as a regular course of business —  sneaky moves that may backfire on the internet giant as the second antitrust trial against the company rages on.
+The Verge reports that the DOJ has accused Google employees of liberally labeling their emails as “privileged and confidential” and engaging in “off the record” chat messages, even after being instructed to preserve their communications for investigators. This revelation has come to light during Google’s second antitrust trial in a Virginia court over the past couple of weeks.
+According to the DOJ’s lawyers, this strategy could have serious consequences for Google if the judge believes the company intentionally destroyed evidence that would have been detrimental to its case. In the worst-case scenario, the judge could issue an adverse inference about Google’s missing documents, assuming they would have been unfavorable to the company’s defense.
+Evidence presented in court shows that Google employees frequently used the “privileged and confidential” label in their email discussions, occasionally involving a member of Google’s legal team. Former Google sell-side ad executive Chris LaSala testified that employees also utilized Google’s chat feature, which had message history turned off by default, to have substantive work conversations after being placed on a litigation hold.
+LaSala admitted to instructing employees to start chat threads with history turned off or to have “off the record” discussions when dealing with sensitive topics. While he claimed this was a common practice among employees, LaSala acknowledged that he made mistakes in following the litigation hold but maintained that they were unintentional.
+Other former Google executives, such as Brad Bender and Rahul Srinivasan, were questioned about their use of the “privileged and confidential” label in emails and chats. Bender described chat conversations as more casual, like “bumping into the hall and saying ‘hey we should chat,'” while Srinivasan could not recall the specific legal advice he sought in emails marked as privileged.
+The DOJ argued that Google employees were well aware of how their written communications could be used against the company, pointing to Google’s “Communicate with Care” legal training for employees. In one instance, a Google executive reminded colleagues to be careful with their language, particularly when framing something as a “circumvention,” and to assume that every document and email generated would likely be seen by regulators.
+While many documents shown by the DOJ demonstrate that Google often discussed business decisions in writing, there were instances where they seemed to intentionally limit documentation due to the sensitivity of the subject matter.
+Google spokesperson Peter Schottenfels stated that the company takes its obligations to preserve and produce relevant documents seriously and has produced millions of documents, including chat messages and documents not covered by legal privilege, in response to inquiries and litigation.
+In Google’s first antitrust battle with the DOJ over its search business, the judge declined to issue an adverse inference but warned that any company putting the onus on employees to identify and preserve relevant evidence does so at its own peril. Google avoided sanctions in that case, but the judge cautioned that the company might not be so lucky in the next one.
+Read more at the Verge here.
+Please let us know if you're having issues with commenting.
+
+
+
+
+Copyright © 2025 Breitbart

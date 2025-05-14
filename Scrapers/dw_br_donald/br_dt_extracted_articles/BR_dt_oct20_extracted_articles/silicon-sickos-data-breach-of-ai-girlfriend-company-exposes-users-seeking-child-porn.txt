@@ -1,0 +1,18 @@
+Headline:
+ Silicon Sickos: Data Breach of ‘AI Girlfriend’ Company Exposes Users Seeking Child Porn 
+
+Article Text:
+ A cybersecurity breach at Muah.ai, a website offering “uncensored” AI-powered chatbots, has resulted in the theft of a vast database containing users’ interactions including a large number of users seeking child pornography.
+404 Media reports that a major hacking incident at Muah.ai, a platform that allows users to create customized AI chatbots with a focus on explicit content, has exposed a substantial amount of user data, including chatbot prompts that reveal users’ sexual fantasies and, in many cases, attempts to create chatbots for child sexual abuse scenarios.
+The hacker, who chose to remain anonymous, discovered vulnerabilities in the Muah.ai website, describing it as “basically a handful of open-source projects duct-taped together.” Initially driven by curiosity, the hacker decided to contact 404 Media after discovering the nature of the data in the database.
+The stolen data includes email addresses, many of which appear to be personal accounts with users’ real names, linked to their chatbot interactions. This presents a significant privacy breach for Muah.ai users, as their explicit sexual fantasies are now potentially identifiable.
+Some of the data contains explicit references to underage individuals, including the sexual abuse of toddlers and incest with young children. While it’s unclear if the AI system generated responses reflecting these requests, the data reveals the disturbing intentions of some users.
+Muah.ai administrator Harvard Han claimed the breach was “financed by our competitors in the uncensored AI industry.” However, no evidence was provided to support this assertion, and the hacker denied any affiliation with the AI industry. Muah.ai positions itself as an “uncensored” platform for building AI chatbots, explicitly allowing sexual conversations and photos while claiming to ban underage content. The site offers pre-made bots, community-created options, or the ability to create custom AI companions that can send sexually suggestive or explicit messages and AI-generated images.
+Read more at 404 Media here.
+Lucas Nolan is a reporter for Breitbart News covering issues of free speech and online censorship.
+Please let us know if you're having issues with commenting.
+
+
+
+
+Copyright © 2025 Breitbart

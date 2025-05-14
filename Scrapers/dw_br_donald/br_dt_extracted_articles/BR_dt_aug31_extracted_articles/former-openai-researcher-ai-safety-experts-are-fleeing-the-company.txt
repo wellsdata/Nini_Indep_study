@@ -1,0 +1,20 @@
+Headline:
+ Former OpenAI Researcher: AI Safety Experts Are Fleeing the Company 
+
+Article Text:
+ OpenAI, the developer of the popular AI assistant ChatGPT, has seen a significant exodus of its artificial general intelligence (AGI) safety researchers, according to a former employee.
+Fortune reports that Daniel Kokotajlo, a former OpenAI governance researcher, recently revealed that nearly half of the company’s staff focused on the long-term risks of superpowerful AI have left in the past several months. The departures include prominent researchers such as Jan Hendrik Kirchner, Collin Burns, Jeffrey Wu, Jonathan Uesato, Steven Bills, Yuri Burda, Todor Markov, and cofounder John Schulman. These resignations followed the high-profile exits of chief scientist Ilya Sutskever and researcher Jan Leike in May, who co-headed the company’s “superalignment” team.
+OpenAI, founded with the mission to develop AGI in a way that “benefits all of humanity,” has long employed a significant number of researchers dedicated to “AGI safety” – techniques for ensuring that future AGI systems do not pose catastrophic or existential dangers. However, Kokotajlo suggests that the company’s focus has been shifting towards product development and commercialization, with less emphasis on research to ensure the safe development of AGI.
+Kokotajlo, who joined OpenAI in 2022 and quit in April 2023, stated that the exodus has been gradual, with the number of AGI safety staff dropping from around 30 to just 16. He attributed the departures to individuals “giving up” as OpenAI continues to prioritize product development over safety research.
+The changing culture at OpenAI became more apparent to Kokotajlo before the boardroom drama in November 2022, when CEO Sam Altman was briefly fired and then rehired, and three board members focused on AGI safety were removed. Kokotajlo felt that this incident sealed the deal, with no turning back, and that Altman and president Greg Brockman had been consolidating power since then.
+While some AI research leaders consider the AI safety community’s focus on AGI’s potential threat to humanity to be overhyped, Kokotajlo expressed disappointment that OpenAI came out against California’s SB 1047, a bill aimed at putting guardrails on the development and use of the most powerful AI models.
+Despite the departures, Kokotajlo acknowledged that some remaining employees have moved to other teams where they can continue working on similar projects, and the company has also established a new safety and security committee and appointed Carnegie Mellon University professor Zico Kolter to its board of directors.
+As the race to develop AGI intensifies among major AI companies, Kokotajlo warned against groupthink and the potential for companies to conclude that their success in the race is inherently good for humanity, driven by the majority opinion and incentives within the organization.
+Read more at Fortune here.
+Lucas Nolan is a reporter for Breitbart News covering issues of free speech and online censorship.
+Please let us know if you're having issues with commenting.
+
+
+
+
+Copyright © 2025 Breitbart
